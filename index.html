@@ -39,17 +39,17 @@
     input[type="text"] { background: #ffffff; border: 1px solid #d1d7db; color: var(--wa-text); padding: 6px 12px; border-radius: 6px; font-size: 13px; width: 180px; }
 
     /* Chat Area */
-    .wa-chat-container { flex: 1; background-color: var(--wa-chat-bg); background-image: radial-gradient(rgba(0,0,0,0.04) 1px, transparent 0); background-size: 24px 24px; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; }
+    .wa-chat-container { flex: 1; background-color: var(--wa-chat-bg); background-image: radial-gradient(rgba(255,255,255,0.03) 1px, transparent 0); background-size: 24px 24px; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; }
     
     .date-divider { text-align: center; margin: 16px 0; }
-    .date-divider span { background-color: #e3eeef; color: #54656f; font-size: 11px; padding: 6px 12px; border-radius: 6px; text-transform: uppercase; letter-spacing: 0.5px; box-shadow: 0 1px 0.5px rgba(0,0,0,0.1); font-weight: 600; }
+    .date-divider span { background-color: #182229; color: #8696a0; font-size: 11px; padding: 6px 12px; border-radius: 6px; text-transform: uppercase; letter-spacing: 0.5px; box-shadow: 0 1px 0.5px rgba(0,0,0,0.1); font-weight: 600; }
 
     .message { max-width: 65%; padding: 8px 12px; border-radius: 8px; position: relative; font-size: 14px; line-height: 1.4; word-break: break-word; box-shadow: 0 1px 0.5px rgba(0,0,0,0.13); animation: fadeIn 0.2s ease-out; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
 
-    .message.incoming { background-color: var(--wa-incoming); align-self: flex-start; border-top-left-radius: 0; color: #111b21; }
-    .message.outgoing { background-color: var(--wa-outgoing); align-self: flex-end; border-top-right-radius: 0; color: #111b21; }
-    .message.system { background-color: #ecf2fa; color: #54656f; align-self: center; max-width: 85%; text-align: center; font-size: 12px; border-radius: 8px; padding: 6px 12px; box-shadow: none; }
+    .message.incoming { background-color: var(--wa-incoming); align-self: flex-start; border-top-left-radius: 0; color: #e9edef; }
+    .message.outgoing { background-color: var(--wa-outgoing); align-self: flex-end; border-top-right-radius: 0; color: #e9edef; }
+    .message.system { background-color: rgba(32,44,51,0.8); color: #8696a0; align-self: center; max-width: 85%; text-align: center; font-size: 12px; border-radius: 8px; padding: 6px 12px; box-shadow: none; }
 
     .sender-name { font-size: 12px; font-weight: 600; color: #005c4b; margin-bottom: 2px; }
     .message.outgoing .sender-name { color: #008069; }
@@ -71,7 +71,11 @@
   </style>
 </head>
 <body>
-
+  <!-- Jump to End Button -->
+    <button id="jumpToEndBtn" onclick="jumpToEnd()" title="Jump to End">
+      ⬇️ Jump to End
+    </button>
+  
   <!-- Header -->
   <div class="wa-header">
     <div class="chat-info">
