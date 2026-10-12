@@ -2939,7 +2939,6 @@
           const target = messages[currentIndex];
           target.scrollIntoView({ behavior: 'smooth', block: 'center' });
           
-          // Optional highlight effect as it plays
           target.style.transition = 'background-color 0.3s';
           const originalBg = window.getComputedStyle(target).backgroundColor;
           target.style.backgroundColor = 'rgba(0, 168, 132, 0.15)';
@@ -2947,7 +2946,7 @@
 
           currentIndex++;
         } else {
-          togglePlay(); // Stop when reaching the end
+          togglePlay();
         }
       }, speed);
 
@@ -2960,7 +2959,6 @@
 
   function changeSpeed() {
     if (isPlaying) {
-      // Restart interval with new speed seamlessly
       clearInterval(playInterval);
       const speed = parseInt(document.getElementById('speedSelect').value, 10);
       const container = document.getElementById('chatContainer');
