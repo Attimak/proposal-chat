@@ -2910,22 +2910,13 @@
       </div>
       
 <script>
-  // Clean up any citation tags on load automatically
-  document.addEventListener("DOMContentLoaded", () => {
-    document.querySelectorAll('.message-text').forEach(el => {
-      el.innerHTML = el.innerHTML.replace(/\/g, '');
-    });
-  });
-
   let isPlaying = false;
   let playInterval = null;
-  let currentIndex = 0;
 
   function togglePlay() {
     const playBtn = document.getElementById('playBtn');
     const container = document.getElementById('chatContainer');
-    const messages = container.querySelectorAll('.message, .date-divider');
-
+    
     isPlaying = !isPlaying;
 
     if (isPlaying) {
@@ -2935,18 +2926,11 @@
       const speed = parseInt(document.getElementById('speedSelect').value, 10);
 
       playInterval = setInterval(() => {
-        if (currentIndex < messages.length) {
-          const target = messages[currentIndex];
-          target.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          
-          target.style.transition = 'background-color 0.3s';
-          const originalBg = window.getComputedStyle(target).backgroundColor;
-          target.style.backgroundColor = 'rgba(0, 168, 132, 0.15)';
-          setTimeout(() => { target.style.backgroundColor = originalBg; }, 600);
-
-          currentIndex++;
+        // Scroll down by 3 pixels every tick smoothly
+        if (container.scrollTop + container.clientHeight >= container.scrollHeight) {
+          togglePlay(); // Stop at the bottom
         } else {
-          togglePlay();
+          container.scrollTop += 3;
         }
       }, speed);
 
@@ -2962,14 +2946,12 @@
       clearInterval(playInterval);
       const speed = parseInt(document.getElementById('speedSelect').value, 10);
       const container = document.getElementById('chatContainer');
-      const messages = container.querySelectorAll('.message, .date-divider');
 
       playInterval = setInterval(() => {
-        if (currentIndex < messages.length) {
-          messages[currentIndex].scrollIntoView({ behavior: 'smooth', block: 'center' });
-          currentIndex++;
-        } else {
+        if (container.scrollTop + container.clientHeight >= container.scrollHeight) {
           togglePlay();
+        } else {
+          container.scrollTop += 3;
         }
       }, speed);
     }
@@ -2978,18 +2960,13 @@
   function jumpToEnd() {
     if (isPlaying) togglePlay();
     const container = document.getElementById('chatContainer');
-    const messages = container.querySelectorAll('.message, .date-divider');
-    if (messages.length > 0) {
-      currentIndex = messages.length - 1;
-      messages[currentIndex].scrollIntoView({ behavior: 'smooth', block: 'end' });
-    }
+    container.scrollTo({ top: container.scrollHeight, behavior: 'smooth' });
   }
 
   function resetView() {
     if (isPlaying) togglePlay();
-    currentIndex = 0;
     const container = document.getElementById('chatContainer');
-    container.scrollTop = 0;
+    container.scrollTo({ top: 0, behavior: 'smooth' });
     document.getElementById('searchInput').value = '';
     filterMessages();
   }
