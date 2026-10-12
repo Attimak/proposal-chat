@@ -1,750 +1,2288 @@
 <!DOCTYPE html>
-<html lang="en" class="h-full bg-slate-950">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Proposal Mission 💍 WhatsApp Chat Story</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Oct 10 💍 Confidential Proposal Archive</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;500;600;700&display=swap');
+    :root {
+      --wa-bg: #111b21;
+      --wa-header: #202c33;
+      --wa-header-text: #e9edef;
+      --wa-chat-bg: #0b141a;
+      --wa-outgoing: #005c4b;
+      --wa-incoming: #202c33;
+      --wa-text: #e9edef;
+      --wa-text-secondary: #8696a0;
+      --wa-green: #00a884;
+      --wa-input-bg: #202c33;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
+    body { background-color: var(--wa-bg); color: var(--wa-text); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+
+    /* Header */
+    .wa-header { background-color: var(--wa-header); color: var(--wa-header-text); padding: 10px 16px; display: flex; align-items: center; justify-content: space-between; z-index: 10; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+    .chat-info { display: flex; align-items: center; gap: 12px; }
+    .avatar { width: 40px; height: 40px; border-radius: 50%; background: #005c4b; display: flex; align-items: center; justify-content: center; font-weight: 700; color: white; font-size: 16px; }
+    .chat-meta h2 { font-size: 16px; font-weight: 600; color: var(--wa-header-text); }
+    .chat-meta p { font-size: 12px; color: rgba(255,255,255,0.8); }
+
+    /* Controls Toolbar */
+    .controls-bar { background-color: var(--wa-input-bg); padding: 8px 16px; display: flex; gap: 10px; align-items: center; justify-content: space-between; flex-wrap: wrap; border-bottom: 1px solid #d1d7db; }
+    .controls-group { display: flex; gap: 8px; align-items: center; }
+    button, select { background: #ffffff; color: var(--wa-text); border: 1px solid #d1d7db; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 500; }
+    button:hover, select:hover { background: #f5f6f6; }
+    button.active { background: var(--wa-green); border-color: var(--wa-green); color: #fff; font-weight: 600; }
+    input[type="text"] { background: #ffffff; border: 1px solid #d1d7db; color: var(--wa-text); padding: 6px 12px; border-radius: 6px; font-size: 13px; width: 180px; }
+
+    /* Chat Area */
+    .wa-chat-container { flex: 1; background-color: var(--wa-chat-bg); background-image: radial-gradient(rgba(0,0,0,0.04) 1px, transparent 0); background-size: 24px 24px; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; }
     
-    body {
-      font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif;
-      user-select: none;
-    }
+    .date-divider { text-align: center; margin: 16px 0; }
+    .date-divider span { background-color: #e3eeef; color: #54656f; font-size: 11px; padding: 6px 12px; border-radius: 6px; text-transform: uppercase; letter-spacing: 0.5px; box-shadow: 0 1px 0.5px rgba(0,0,0,0.1); font-weight: 600; }
 
-    /* Official WhatsApp Pattern Style Background */
-    .chat-bg {
-      background-color: #0b141a;
-      background-image: radial-gradient(#1f2c34 1px, transparent 1px);
-      background-size: 20px 20px;
-    }
+    .message { max-width: 65%; padding: 8px 12px; border-radius: 8px; position: relative; font-size: 14px; line-height: 1.4; word-break: break-word; box-shadow: 0 1px 0.5px rgba(0,0,0,0.13); animation: fadeIn 0.2s ease-out; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
 
-    .bubble-in {
-      background-color: #202c33;
-      color: #e9edef;
-      border-top-left-radius: 0px;
-    }
+    .message.incoming { background-color: var(--wa-incoming); align-self: flex-start; border-top-left-radius: 0; color: #111b21; }
+    .message.outgoing { background-color: var(--wa-outgoing); align-self: flex-end; border-top-right-radius: 0; color: #111b21; }
+    .message.system { background-color: #ecf2fa; color: #54656f; align-self: center; max-width: 85%; text-align: center; font-size: 12px; border-radius: 8px; padding: 6px 12px; box-shadow: none; }
 
-    .bubble-out {
-      background-color: #005c4b;
-      color: #e9edef;
-      border-top-right-radius: 0px;
-    }
+    .sender-name { font-size: 12px; font-weight: 600; color: #005c4b; margin-bottom: 2px; }
+    .message.outgoing .sender-name { color: #008069; }
+    .message-text { margin-bottom: 14px; }
+    .meta { font-size: 10px; color: var(--wa-text-secondary); position: absolute; bottom: 4px; right: 8px; display: flex; align-items: center; gap: 3px; }
+    .ticks { color: #53bdeb; font-size: 12px; }
 
-    /* Custom scrollbar for authentic chat feel */
-    ::-webkit-scrollbar {
-      width: 6px;
-    }
-    ::-webkit-scrollbar-track {
-      background: transparent;
-    }
-    ::-webkit-scrollbar-thumb {
-      background: rgba(255, 255, 255, 0.16);
-      border-radius: 3px;
-    }
-    ::-webkit-scrollbar-thumb:hover {
-      background: rgba(255, 255, 255, 0.3);
-    }
+    a { color: #027eb5; text-decoration: underline; }
+    .media-placeholder { background: rgba(0,0,0,0.05); padding: 6px 10px; border-radius: 6px; margin-bottom: 12px; font-style: italic; color: var(--wa-text-secondary); display: flex; align-items: center; gap: 6px; font-size: 13px; }
 
-    /* Message pop-in animation */
-    @keyframes messagePop {
-      0% { opacity: 0; transform: translateY(12px) scale(0.97); }
-      100% { opacity: 1; transform: translateY(0) scale(1); }
-    }
+    /* Footer */
+    .wa-footer { background-color: var(--wa-input-bg); padding: 12px 16px; display: flex; align-items: center; gap: 12px; border-top: 1px solid #d1d7db; }
+    .wa-input-fake { flex: 1; background: #ffffff; padding: 10px 16px; border-radius: 8px; color: var(--wa-text-secondary); font-size: 14px; border: 1px solid #d1d7db; }
 
-    .animate-pop {
-      animation: messagePop 0.25s cubic-bezier(0.1, 0.9, 0.2, 1) forwards;
-    }
-
-    /* Pulse animation for record light */
-    @keyframes redPulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.3; }
-    }
-    .pulse-dot {
-      animation: redPulse 1.2s infinite;
+    @media(max-width: 768px) {
+      .message { max-width: 85%; }
+      .controls-bar { flex-direction: column; align-items: stretch; }
     }
   </style>
 </head>
-<body class="h-full flex items-center justify-center p-0 sm:p-4 md:p-6 overflow-hidden text-slate-100">
+<body>
 
-  <!-- App Frame Wrapper -->
-  <div id="appFrame" class="w-full h-full max-w-2xl bg-[#111b21] flex flex-col shadow-2xl rounded-none sm:rounded-2xl border 0 sm:border border-slate-800 overflow-hidden relative transition-all duration-300">
-
-    <!-- Top Navigation / Group Header -->
-    <header class="bg-[#202c33] px-3 py-2.5 flex items-center justify-between z-20 border-b border-[#222d34]">
-      <div class="flex items-center gap-3 cursor-pointer" onclick="toggleInfoModal()">
-        <button class="text-slate-400 hover:text-slate-200 transition sm:hidden">
-          <i class="fa-solid fa-arrow-left text-lg"></i>
-        </button>
-        <!-- Group Avatar Stack -->
-        <div class="relative w-10 h-10 rounded-full bg-emerald-700 flex items-center justify-center overflow-hidden flex-shrink-0 border border-emerald-600">
-          <i class="fa-solid fa-ring text-yellow-300 text-lg"></i>
-        </div>
-        <div class="flex flex-col overflow-hidden">
-          <h1 class="font-semibold text-slate-100 text-base leading-tight truncate flex items-center gap-1.5">
-            Proposal Mission 💍
-            <span class="text-xs bg-emerald-900/60 text-emerald-400 px-1.5 py-0.5 rounded font-normal border border-emerald-700/50">Confidential</span>
-          </h1>
-          <p id="headerSubtitle" class="text-xs text-slate-400 truncate">
-            Stephen, Betsy, Laura, Marcus, Haley's Mom...
-          </p>
-        </div>
-      </div>
-
-      <!-- Action Buttons -->
-      <div class="flex items-center gap-2 text-slate-400">
-        <button onclick="toggleSearch()" class="p-2 hover:bg-[#2a3942] rounded-full transition" title="Search messages">
-          <i class="fa-solid fa-magnifying-glass text-slate-300"></i>
-        </button>
-        <button onclick="toggleSound()" id="soundBtn" class="p-2 hover:bg-[#2a3942] rounded-full transition text-emerald-400" title="Toggle audio SFX">
-          <i class="fa-solid fa-volume-high"></i>
-        </button>
-        <button onclick="toggleAspect()" class="p-2 hover:bg-[#2a3942] rounded-full transition text-slate-300" title="Toggle 9:16 Aspect Ratio">
-          <i class="fa-solid fa-mobile-screen-button"></i>
-        </button>
-        <button onclick="openAddMessageModal()" class="p-2 hover:bg-[#2a3942] rounded-full transition text-slate-300" title="Add custom message">
-          <i class="fa-solid fa-plus"></i>
-        </button>
-      </div>
-    </header>
-
-    <!-- Interactive Filter Search Bar (Hidden by Default) -->
-    <div id="searchBar" class="bg-[#111b21] border-b border-[#222d34] px-3 py-2 hidden flex items-center gap-2 z-10 animate-pop">
-      <i class="fa-solid fa-search text-slate-500 ml-2"></i>
-      <input type="text" id="searchInput" oninput="filterMessages()" placeholder="Search chat history..." class="w-full bg-[#202c33] text-slate-200 placeholder-slate-500 text-sm rounded-lg px-3 py-1.5 focus:outline-none border border-transparent focus:border-emerald-500">
-      <button onclick="toggleSearch()" class="text-slate-400 text-xs hover:text-white px-2">Cancel</button>
-    </div>
-
-    <!-- Floating Playback Overlay Controller -->
-    <div class="absolute top-16 left-1/2 -translate-x-1/2 z-30 bg-[#202c33]/90 backdrop-blur-md px-4 py-2 rounded-full border border-slate-700/60 shadow-xl flex items-center gap-3">
-      <button id="playPauseBtn" onclick="toggleAutoPlay()" class="w-8 h-8 rounded-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold flex items-center justify-center transition shadow-lg">
-        <i id="playIcon" class="fa-solid fa-play ml-0.5 text-xs"></i>
-      </button>
-      <div class="flex flex-col">
-        <span class="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Auto-Story Play</span>
-        <span id="playStatus" class="text-xs text-slate-200 font-medium">Ready</span>
-      </div>
-      <div class="h-5 w-[1px] bg-slate-700 mx-1"></div>
-      <button onclick="cycleSpeed()" id="speedBtn" class="text-xs bg-[#111b21] hover:bg-[#2a3942] text-emerald-400 px-2.5 py-1 rounded-full border border-emerald-800 font-mono">
-        1.0x
-      </button>
-      <button onclick="resetChat()" class="text-slate-400 hover:text-white p-1" title="Reset to start">
-        <i class="fa-solid fa-rotate-left text-xs"></i>
-      </button>
-    </div>
-
-    <!-- Chat Scroll Container -->
-    <div id="chatContainer" class="flex-1 chat-bg overflow-y-auto px-3 sm:px-4 py-16 space-y-3 relative">
-      <!-- Encryption Badge -->
-      <div class="flex justify-center my-2">
-        <div class="bg-[#182229] border border-yellow-800/40 text-yellow-500/90 text-[11px] px-3 py-1.5 rounded-lg text-center max-w-xs shadow-sm flex items-center gap-2">
-          <i class="fa-solid fa-lock text-[10px]"></i>
-          <span>Messages are end-to-end encrypted. No one outside of this chat can read or listen.</span>
-        </div>
-      </div>
-
-      <!-- Messages Stream Render Target -->
-      <div id="messagesList" class="space-y-3"></div>
-
-      <!-- Typing Indicator (Simulated) -->
-      <div id="typingIndicator" class="hidden flex items-center gap-2 max-w-[120px] bg-[#202c33] rounded-2xl rounded-tl-none px-3 py-2 border border-slate-700/30">
-        <span id="typingUser" class="text-xs text-emerald-400 font-medium hidden"></span>
-        <div class="flex items-center gap-1">
-          <div class="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce"></div>
-          <div class="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce [animation-delay:0.2s]"></div>
-          <div class="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce [animation-delay:0.4s]"></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Chat Input Footer -->
-    <footer class="bg-[#202c33] px-3 py-2 flex items-center gap-2 border-t border-[#222d34] z-20">
-      <button class="text-slate-400 hover:text-slate-200 p-2">
-        <i class="fa-regular fa-face-smile text-xl"></i>
-      </button>
-      <button onclick="openAddMediaModal()" class="text-slate-400 hover:text-slate-200 p-2" title="Attach picture">
-        <i class="fa-solid fa-paperclip text-lg"></i>
-      </button>
-      <div class="flex-1 bg-[#2a3942] rounded-lg px-4 py-2 flex items-center">
-        <input type="text" id="manualMsgInput" placeholder="Type a message into group..." class="w-full bg-transparent text-sm text-slate-100 placeholder-slate-400 focus:outline-none" onkeypress="if(event.key==='Enter') sendManualMessage()">
-      </div>
-      <button onclick="sendManualMessage()" class="w-9 h-9 rounded-full bg-emerald-600 hover:bg-emerald-500 text-slate-950 font-bold flex items-center justify-center transition flex-shrink-0">
-        <i class="fa-solid fa-paper-plane text-xs text-white ml-0.5"></i>
-      </button>
-    </footer>
-
-  </div>
-
-  <!-- Image Lightbox Modal -->
-  <div id="lightbox" class="fixed inset-0 z-50 bg-black/95 hidden flex flex-col items-center justify-center p-4" onclick="closeLightbox()">
-    <button class="absolute top-4 right-4 text-slate-400 hover:text-white text-2xl p-2">
-      <i class="fa-solid fa-xmark"></i>
-    </button>
-    <img id="lightboxImg" src="" alt="Full preview" class="max-w-full max-h-[85vh] rounded-lg object-contain shadow-2xl">
-    <p id="lightboxCaption" class="text-slate-300 text-sm mt-3 text-center max-w-md font-medium"></p>
-  </div>
-
-  <!-- Group Info Modal -->
-  <div id="infoModal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm hidden flex items-center justify-center p-4" onclick="toggleInfoModal()">
-    <div class="bg-[#202c33] rounded-2xl max-w-sm w-full p-5 border border-slate-700 shadow-2xl" onclick="event.stopPropagation()">
-      <div class="flex flex-col items-center text-center pb-4 border-b border-slate-700">
-        <div class="w-20 h-20 rounded-full bg-emerald-700 flex items-center justify-center border-2 border-emerald-500 mb-3 shadow-lg">
-          <i class="fa-solid fa-ring text-yellow-300 text-3xl"></i>
-        </div>
-        <h3 class="text-lg font-bold text-slate-100">Proposal Mission 💍</h3>
-        <p class="text-xs text-slate-400 mt-0.5">Group · 6 Participants</p>
-      </div>
-      <div class="py-4 space-y-3">
-        <h4 class="text-xs font-semibold text-emerald-400 uppercase tracking-wider">Participants</h4>
-        <div id="participantList" class="space-y-2 max-h-48 overflow-y-auto"></div>
-      </div>
-      <button onclick="toggleInfoModal()" class="w-full py-2 bg-[#2a3942] hover:bg-slate-700 text-slate-200 text-sm rounded-lg transition font-medium">Close</button>
-    </div>
-  </div>
-
-  <!-- Add Custom Message Modal -->
-  <div id="addMsgModal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm hidden flex items-center justify-center p-4">
-    <div class="bg-[#202c33] rounded-2xl max-w-md w-full p-5 border border-slate-700 shadow-2xl space-y-4">
-      <h3 class="text-lg font-bold text-slate-100 flex items-center gap-2">
-        <i class="fa-solid fa-message text-emerald-400"></i> Add Chat Message
-      </h3>
-      <div>
-        <label class="text-xs text-slate-400 block mb-1">Sender</label>
-        <select id="modalSender" class="w-full bg-[#111b21] text-slate-200 border border-slate-700 rounded-lg p-2 text-sm">
-          <option value="Stephen (Groom)">Stephen (You)</option>
-          <option value="Betsy (Best Friend)">Betsy (Best Friend)</option>
-          <option value="Laura (Sister)">Laura (Sister)</option>
-          <option value="Marcus (Best Man)">Marcus (Best Man)</option>
-          <option value="Haley's Mom">Haley's Mom</option>
-        </select>
-      </div>
-      <div>
-        <label class="text-xs text-slate-400 block mb-1">Message Content</label>
-        <textarea id="modalText" rows="3" class="w-full bg-[#111b21] text-slate-200 border border-slate-700 rounded-lg p-2 text-sm focus:outline-none focus:border-emerald-500" placeholder="Type message..."></textarea>
-      </div>
-      <div class="flex justify-end gap-2">
-        <button onclick="closeAddMessageModal()" class="px-4 py-2 bg-[#2a3942] text-slate-300 text-sm rounded-lg">Cancel</button>
-        <button onclick="submitCustomMessage()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-sm rounded-lg font-semibold">Insert Message</button>
+  <!-- Header -->
+  <div class="wa-header">
+    <div class="chat-info">
+      <div class="avatar">10</div>
+      <div class="chat-meta">
+        <h2>Oct 10 💍 Confidential</h2>
+        <p>Full chat history • Joshua Margaillan (Sender)</p>
       </div>
     </div>
   </div>
 
-  <!-- Attach Media Modal -->
-  <div id="addMediaModal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm hidden flex items-center justify-center p-4">
-    <div class="bg-[#202c33] rounded-2xl max-w-md w-full p-5 border border-slate-700 shadow-2xl space-y-4">
-      <h3 class="text-lg font-bold text-slate-100 flex items-center gap-2">
-        <i class="fa-solid fa-image text-emerald-400"></i> Attach Photo or Map
-      </h3>
-      <div>
-        <label class="text-xs text-slate-400 block mb-1">Sender</label>
-        <select id="mediaSender" class="w-full bg-[#111b21] text-slate-200 border border-slate-700 rounded-lg p-2 text-sm">
-          <option value="Stephen (Groom)">Stephen (You)</option>
-          <option value="Betsy (Best Friend)">Betsy (Best Friend)</option>
-          <option value="Laura (Sister)">Laura (Sister)</option>
-        </select>
-      </div>
-      <div>
-        <label class="text-xs text-slate-400 block mb-1">Image URL</label>
-        <input type="text" id="mediaUrl" class="w-full bg-[#111b21] text-slate-200 border border-slate-700 rounded-lg p-2 text-sm focus:outline-none" placeholder="https://images.unsplash.com/...">
-      </div>
-      <div>
-        <label class="text-xs text-slate-400 block mb-1">Caption</label>
-        <input type="text" id="mediaCaption" class="w-full bg-[#111b21] text-slate-200 border border-slate-700 rounded-lg p-2 text-sm focus:outline-none" placeholder="Add a caption...">
-      </div>
-      <div class="flex justify-end gap-2">
-        <button onclick="closeAddMediaModal()" class="px-4 py-2 bg-[#2a3942] text-slate-300 text-sm rounded-lg">Cancel</button>
-        <button onclick="submitCustomMedia()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-sm rounded-lg font-semibold">Post Media</button>
-      </div>
+  <!-- Controls Toolbar -->
+  <div class="controls-bar">
+    <div class="controls-group">
+      <button id="playBtn" onclick="togglePlay()">▶ Auto-Play Chat</button>
+      <select id="speedSelect" onchange="changeSpeed()">
+        <option value="800">Speed: Normal</option>
+        <option value="300" selected>Speed: Fast</option>
+        <option value="50">Speed: Instant</option>
+      </select>
+    </div>
+    <div class="controls-group">
+      <input type="text" id="searchInput" placeholder="Search chat messages..." onkeyup="filterMessages()">
+      <button onclick="resetView()">Reset Filter</button>
     </div>
   </div>
 
-  <script>
-    // Participant Data & Avatars
-    const participants = {
-      "Stephen (Groom)": { name: "Stephen", color: "text-emerald-400", isMe: true, role: "Organiser / Groom" },
-      "Betsy (Best Friend)": { name: "Betsy", color: "text-pink-400", isMe: false, avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80", role: "Maid of Honor in Spirit" },
-      "Laura (Sister)": { name: "Laura", color: "text-purple-400", isMe: false, avatar: "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=120&q=80", role: "Sister & Photographer" },
-      "Marcus (Best Man)": { name: "Marcus", color: "text-amber-400", isMe: false, avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=120&q=80", role: "Distractor & Logistics" },
-      "Haley's Mom": { name: "Mom (Sarah)", color: "text-cyan-400", isMe: false, avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=120&q=80", role: "Ring Keeper" }
-    };
+  <!-- Chat Log Stream -->
+  <div class="wa-chat-container" id="chatContainer">
+    
+    <div class="message system">Messages and calls are end-to-end encrypted. Only people in this chat can read, listen to, or share them.[cite: 1]</div>
+    <div class="message system">Oct 10 created group “Oct 10”[cite: 1]</div>
 
-    // Proposal Chat Master Dataset
-    const fullChatHistory = [
-      { id: 1, sender: "Stephen (Groom)", text: "Okay guys... operational code name: OPERATION FOREVER 🤫. I'm proposing to Haley in 3 weeks!", time: "10:14 AM", date: "MAY 12" },
-      { id: 2, sender: "Betsy (Best Friend)", text: "FINALLY!!!!! 🎉😭 I thought I was gonna burst keeping this secret!", time: "10:15 AM", reactions: ["❤️", "🎉"] },
-      { id: 3, sender: "Marcus (Best Man)", text: "My guy! Let's go! What's the plan? Have you got the ring yet??", time: "10:15 AM" },
-      { id: 4, sender: "Haley's Mom", text: "I have had the ring safe in my closet safe for 2 months! Stephen picked an absolute stunner 💍✨", time: "10:16 AM" },
-      {
-        id: 5,
-        sender: "Haley's Mom",
-        type: "image",
-        mediaUrl: "https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&w=800&q=80",
-        caption: "Here is a sneaky peak at the emerald cut solitaire! Shhh!",
-        time: "10:17 AM",
-        reactions: ["😮", "🔥"]
-      },
-      { id: 6, sender: "Laura (Sister)", text: "OMG Stephen it's gorgeous!! She is going to cry so much haha", time: "10:18 AM" },
-      { id: 7, sender: "Stephen (Groom)", text: "Here's what I'm thinking: Yarra Valley winery tour on Saturday the 24th. I told her we are going for Betsy's birthday.", time: "10:20 AM" },
-      { id: 8, sender: "Betsy (Best Friend)", text: "Yes! I already told her I wanted a 'chill winery day' for my bday so she suspects ZERO.", time: "10:21 AM", reactions: ["😂"] },
-      {
-        id: 9,
-        sender: "Stephen (Groom)",
-        type: "map",
-        locationName: "Hubert Estate - Yarra Valley",
-        coords: "37.7602° S, 145.4521° E",
-        caption: "I booked a private tasting pavilion at 2:00 PM near the vines.",
-        time: "10:25 AM"
-      },
-      {
-        id: 10,
-        sender: "Laura (Sister)",
-        type: "voice",
-        duration: "0:14",
-        caption: "Voice note: 'I'll bring my telephoto camera lens and hide in the vineyard rows around 1:45 PM!'",
-        time: "10:28 AM"
-      },
-      { id: 11, sender: "Marcus (Best Man)", text: "My job is to make sure Haley doesn't look in your coat pocket right? 😂", time: "10:30 AM" },
-      { id: 12, sender: "Stephen (Groom)", text: "Exactly. Keep her distracted while we walk up the hill path towards the vineyard lookout.", time: "10:31 AM" },
-      
-      // Fast forward to big day
-      { id: 13, isDateDivider: true, text: "SATURDAY, MAY 24 - PROPOSAL DAY 🥂" },
-      
-      { id: 14, sender: "Stephen (Groom)", text: "UPDATE: We are in the Uber! Heading to Yarra Valley now. Heart rate is currently 140 bpm 💓", time: "11:45 AM", reactions: ["🙏"] },
-      { id: 15, sender: "Laura (Sister)", text: "I'm already in position behind row 12 in the vineyard! Weather is literally perfect ☀️🍇", time: "1:30 PM" },
-      {
-        id: 16,
-        sender: "Laura (Sister)",
-        type: "image",
-        mediaUrl: "https://images.unsplash.com/photo-1506377247377-2a5b3b417ebb?auto=format&fit=crop&w=800&q=80",
-        caption: "View from my hideout spot! Beautiful sunshine.",
-        time: "1:35 PM",
-        reactions: ["😍"]
-      },
-      { id: 17, sender: "Betsy (Best Friend)", text: "We just finished tasting #2! Moving her towards the hill path NOW! Go go go!", time: "2:02 PM" },
-      { id: 18, sender: "Stephen (Groom)", text: "Wish me luck guys... here goes everything ❤️", time: "2:05 PM", reactions: ["❤️", "🤞"] },
-      
-      { id: 19, sender: "Laura (Sister)", text: "SHE SAID YESSSSSS!!!!!! 😭😭😭😭🎉🎉🎉🎉🎉", time: "2:14 PM", reactions: ["🥂", "🎉", "❤️", "🔥"] },
-      {
-        id: 20,
-        sender: "Laura (Sister)",
-        type: "image",
-        mediaUrl: "https://images.unsplash.com/photo-1515934751635-c81c6bc9a2d8?auto=format&fit=crop&w=800&q=80",
-        caption: "THE EXACT MOMENT!! Look at her reaction! ❤️✨",
-        time: "2:16 PM",
-        reactions: ["❤️", "😭"]
-      },
-      {
-        id: 21,
-        sender: "Stephen (Groom)",
-        type: "image",
-        mediaUrl: "https://images.unsplash.com/photo-1522673607200-164d1b6ce486?auto=format&fit=crop&w=800&q=80",
-        caption: "WE ARE ENGAGED!! Thank you team!! Best crew ever! 💍🍾",
-        time: "2:25 PM",
-        reactions: ["🥂", "❤️"]
-      },
-      { id: 22, sender: "Haley's Mom", text: "Crying tears of joy! Welcome officially to the family Stephen! ❤️", time: "2:28 PM" }
-    ];
+    <!-- 27 MAY 2026 -->
+    <div class="date-divider"><span>27 May 2026</span></div>
 
-    // App State Variables
-    let currentDisplayedIndex = 0;
-    let isPlaying = false;
-    let autoPlayTimer = null;
-    let playSpeed = 1.0;
-    let soundEnabled = true;
-    let audioCtx = null;
+    <div class="message incoming" data-sender="Oct 10">
+      <div class="sender-name">Oct 10</div>
+      <div class="message-text">‎Messages and calls are end-to-end encrypted. Only people in this chat can read, listen to, or share them.</div>
+      <div class="meta">2:15 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Oct 10">
+      <div class="sender-name">Oct 10</div>
+      <div class="message-text">‎You created group “Oct 10”</div>
+      <div class="meta">2:15 pm</div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">Hi fwends</div>
+      <div class="meta">2:15 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">SO</div>
+      <div class="meta">2:15 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">I’m pretty sure most of y’all know what this is about (surprise if not lol) but this chat will be locked and muted from my end so it doesn’t pop up in front of Shu AHAH</div>
+      <div class="meta">2:16 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">How is everyone’s availabilities Oct 10-11 2026?</div>
+      <div class="meta">2:16 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">is everyone in country?</div>
+      <div class="meta">2:16 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message incoming" data-sender="Yikee">
+      <div class="sender-name">Yikee</div>
+      <div class="message-text">YAS</div>
+      <div class="meta">2:17 pm</div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">I will need y’all to block like Morning of the 10th (Sat) to afternoon of 11th (Sun)</div>
+      <div class="meta">2:19 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">I don’t wanna spoil too much and there is a lottttt of planning to do</div>
+      <div class="meta">2:20 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message incoming" data-sender="Carina (Aruba) Lai">
+      <div class="sender-name">Carina (Aruba) Lai</div>
+      <div class="message-text">baahahahahhahaa i knew it</div>
+      <div class="meta">2:20 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Carina (Aruba) Lai">
+      <div class="sender-name">Carina (Aruba) Lai</div>
+      <div class="message-text">yes i don’t want details <br>just in case i cant STFU</div>
+      <div class="meta">2:20 pm</div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">but need to lock y’all in now so I can get everything sorted</div>
+      <div class="meta">2:20 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">100%</div>
+      <div class="meta">2:20 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message incoming" data-sender="Carina (Aruba) Lai">
+      <div class="sender-name">Carina (Aruba) Lai</div>
+      <div class="message-text">why do i want to cry now</div>
+      <div class="meta">2:20 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Carina (Aruba) Lai">
+      <div class="sender-name">Carina (Aruba) Lai</div>
+      <div class="message-text">how to lock chat</div>
+      <div class="meta">2:20 pm</div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">Just in group options ahhaa</div>
+      <div class="meta">2:23 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">‎POLL:<br>Are you free Oct 10-11<br>‎OPTION: Yes (5 votes)<br>‎OPTION: No (0 votes)</div>
+      <div class="meta">2:23 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">Also @Carina (Aruba) Lai so sorry but gonna have to ask you to leave Ruppies at home for this one 😅 Already having issues finding us all a place w our numbers D:</div>
+      <div class="meta">2:31 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message incoming" data-sender="Carina (Aruba) Lai">
+      <div class="sender-name">Carina (Aruba) Lai</div>
+      <div class="message-text">hahahaha no worries all good!!! 😂 that’s so fair</div>
+      <div class="meta">2:32 pm</div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">can any of y’all legally drive btw? If not will get my friends to drive</div>
+      <div class="meta">2:33 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message incoming" data-sender="Carina (Aruba) Lai">
+      <div class="sender-name">Carina (Aruba) Lai</div>
+      <div class="message-text">me = ❌</div>
+      <div class="meta">2:33 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Khandhan Nadarajan">
+      <div class="sender-name">Khandhan Nadarajan</div>
+      <div class="message-text">YAY</div>
+      <div class="meta">2:36 pm</div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">@tohs dare you to say no</div>
+      <div class="meta">2:41 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message incoming" data-sender="Yan Sheen Toh">
+      <div class="sender-name">Yan Sheen Toh</div>
+      <div class="message-text">YIPPIEEE</div>
+      <div class="meta">3:36 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Yan Sheen Toh">
+      <div class="sender-name">Yan Sheen Toh</div>
+      <div class="message-text">will 100% block out</div>
+      <div class="meta">3:36 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Yan Sheen Toh">
+      <div class="sender-name">Yan Sheen Toh</div>
+      <div class="message-text">i can’t drive here 🙃</div>
+      <div class="meta">3:36 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Yan Sheen Toh">
+      <div class="sender-name">Yan Sheen Toh</div>
+      <div class="message-text"><div class="media-placeholder">📷 [Attached Sticker: 00000028-STICKER-2026-05-27-15-36-47.webp]</div></div>
+      <div class="meta">3:36 pm</div>
+    </div>
 
-    function playPopSFX() {
-      if (!soundEnabled) return;
-      try {
-        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        if (audioCtx.state === 'suspended') audioCtx.resume();
-        
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(600, audioCtx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.08);
-        
-        gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.08);
-        
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-        osc.start();
-        osc.stop(audioCtx.currentTime + 0.08);
-      } catch (e) {
-        console.log('Audio init prevented');
-      }
-    }
+    <!-- 1 JULY 2026 -->
+    <div class="date-divider"><span>1 July 2026</span></div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">Hey friends still finalizing plans</div>
+      <div class="meta">1:10 am <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">Unrelated tho</div>
+      <div class="meta">1:10 am <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">How is everyone’s Jul 25 (Saturday) looking</div>
+      <div class="meta">1:11 am <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">Thinking of doing something for Shu’s bday before her parents are here</div>
+      <div class="meta">1:11 am <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">Thinking of a clay/pottery and sip with yall if that’s something youse would be keen for?</div>
+      <div class="meta">1:11 am <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message incoming" data-sender="Yikee">
+      <div class="sender-name">Yikee</div>
+      <div class="message-text">keen!!!</div>
+      <div class="meta">6:32 am</div>
+    </div>
+    <div class="message incoming" data-sender="Khandhan Nadarajan">
+      <div class="sender-name">Khandhan Nadarajan</div>
+      <div class="message-text">Omg yay</div>
+      <div class="meta">6:51 am</div>
+    </div>
+    <div class="message incoming" data-sender="Yan Hong Toh">
+      <div class="sender-name">Yan Hong Toh</div>
+      <div class="message-text">I should be free!</div>
+      <div class="meta">3:46 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Carina (Aruba) Lai">
+      <div class="sender-name">Carina (Aruba) Lai</div>
+      <div class="message-text">i have a hair appointment but i will cancel that</div>
+      <div class="meta">3:47 pm</div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">haha thinking of evening so you should be fine: D</div>
+      <div class="meta">3:48 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message incoming" data-sender="Carina (Aruba) Lai">
+      <div class="sender-name">Carina (Aruba) Lai</div>
+      <div class="message-text">AH ok can too</div>
+      <div class="meta">3:48 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Carina (Aruba) Lai">
+      <div class="sender-name">Carina (Aruba) Lai</div>
+      <div class="message-text">HAHAHAHA</div>
+      <div class="meta">3:48 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Carina (Aruba) Lai">
+      <div class="sender-name">Carina (Aruba) Lai</div>
+      <div class="message-text">before dinner?</div>
+      <div class="meta">3:48 pm</div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">will confirm - trying to see what options where first see if they have food !</div>
+      <div class="meta">3:49 pm <span class="ticks">✓✓</span></div>
+    </div>
 
-    window.onload = function() {
-      renderParticipantsList();
-      // Render initial set of messages
-      renderAllMessagesUntil(7);
-    };
+    <!-- 2 JULY 2026 -->
+    <div class="date-divider"><span>2 July 2026</span></div>
+    <div class="message incoming" data-sender="Yan Sheen Toh">
+      <div class="sender-name">Yan Sheen Toh</div>
+      <div class="message-text">i’m free then too yayyyy</div>
+      <div class="meta">6:15 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Yan Sheen Toh">
+      <div class="sender-name">Yan Sheen Toh</div>
+      <div class="message-text"><div class="media-placeholder">📷 [Attached Sticker: 00000044-STICKER-2026-07-02-18-15-19.webp]</div></div>
+      <div class="meta">6:15 pm</div>
+    </div>
 
-    function renderParticipantsList() {
-      const container = document.getElementById('participantList');
-      container.innerHTML = '';
-      Object.keys(participants).forEach(key => {
-        const p = participants[key];
-        const avatarHtml = p.avatar 
-          ? `<img src="${p.avatar}" class="w-8 h-8 rounded-full object-cover">`
-          : `<div class="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center text-xs font-bold text-slate-200">${p.name[0]}</div>`;
-          
-        container.innerHTML += `
-          <div class="flex items-center justify-between p-2 rounded-lg bg-[#111b21]">
-            <div class="flex items-center gap-2.5">
-              ${avatarHtml}
-              <div>
-                <p class="text-sm font-medium text-slate-200">${p.name} ${p.isMe ? '<span class="text-xs text-slate-500">(You)</span>' : ''}</p>
-                <p class="text-[10px] text-slate-400">${p.role}</p>
-              </div>
-            </div>
-            <i class="fa-solid fa-shield-halved text-xs text-emerald-500"></i>
-          </div>
-        `;
-      });
-    }
+    <!-- 8 JULY 2026 -->
+    <div class="date-divider"><span>8 July 2026</span></div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">Hey friendsss</div>
+      <div class="meta">3:48 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">Is anyone passing by north Melbourne anytime this week</div>
+      <div class="meta">3:48 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">I need someone to go kick some ass</div>
+      <div class="meta">3:48 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message incoming" data-sender="Carina (Aruba) Lai">
+      <div class="sender-name">Carina (Aruba) Lai</div>
+      <div class="message-text">????</div>
+      <div class="meta">3:49 pm</div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">thepottery studio not replying me</div>
+      <div class="meta">3:49 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">grr</div>
+      <div class="meta">3:49 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message incoming" data-sender="Carina (Aruba) Lai">
+      <div class="sender-name">Carina (Aruba) Lai</div>
+      <div class="message-text">oh rip <br>for 25th july right</div>
+      <div class="meta">3:50 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Carina (Aruba) Lai">
+      <div class="sender-name">Carina (Aruba) Lai</div>
+      <div class="message-text">we still have a bit of time</div>
+      <div class="meta">3:50 pm</div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">ues ma'am</div>
+      <div class="meta">4:05 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message incoming" data-sender="Khandhan Nadarajan">
+      <div class="sender-name">Khandhan Nadarajan</div>
+      <div class="message-text">Aiyo</div>
+      <div class="meta">4:22 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Khandhan Nadarajan">
+      <div class="sender-name">Khandhan Nadarajan</div>
+      <div class="message-text">Have you tried calling?</div>
+      <div class="meta">4:23 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Yan Sheen Toh">
+      <div class="sender-name">Yan Sheen Toh</div>
+      <div class="message-text">oh naur</div>
+      <div class="meta">6:08 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Yan Sheen Toh">
+      <div class="sender-name">Yan Sheen Toh</div>
+      <div class="message-text">well i can go sus if needed but only can do on sunday if they are open 🥹</div>
+      <div class="meta">6:09 pm</div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">CBS are insta or email only</div>
+      <div class="meta">6:32 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">Hahaha</div>
+      <div class="meta">6:32 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">All good</div>
+      <div class="meta">6:32 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">Found backups</div>
+      <div class="meta">6:32 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">But I want terrapotteerrr</div>
+      <div class="meta">6:32 pm <span class="ticks">✓✓</span></div>
+    </div>
 
-    function createMessageMarkup(msg) {
-      if (msg.isDateDivider) {
-        return `
-          <div class="flex justify-center my-3 message-item">
-            <span class="bg-[#182229] border border-slate-800 text-slate-400 text-[11px] font-medium px-3 py-1 rounded-md shadow-sm uppercase tracking-wider">
-              ${msg.text}
-            </span>
-          </div>
-        `;
-      }
+    <!-- 9 JULY 2026 -->
+    <div class="date-divider"><span>9 July 2026</span></div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">Hey fwends - Terrapotter can only do 3:30pm-5:30pm at their St Kilda location (bastards). Not opposed cause to this cause Terrapotter is the most vibey and they have us option of wheel, hand building, or painting lol… Was thinking we could do a bit of an afternoon drinkies followed by dinner around there?<br><br>The pottery part would be $115 per head, so I know it might be a wee bit spenny… I’d be happy to shout everyones drinks for both pottery and dinner if everyone would be okay to cover activity/food?</div>
+      <div class="meta">12:39 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">If not I can take shubees out and we stick to activity ~ <This message was edited></div>
+      <div class="meta">12:39 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message incoming" data-sender="Carina (Aruba) Lai">
+      <div class="sender-name">Carina (Aruba) Lai</div>
+      <div class="message-text">i’m fine with it <br>you don’t need to cover for me!</div>
+      <div class="meta">12:41 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Carina (Aruba) Lai">
+      <div class="sender-name">Carina (Aruba) Lai</div>
+      <div class="message-text">i’m happy to do whatever!!</div>
+      <div class="meta">12:41 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Khandhan Nadarajan">
+      <div class="sender-name">Khandhan Nadarajan</div>
+      <div class="message-text">Ya idm paying for myself also hshsjwjw</div>
+      <div class="meta">12:44 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Khandhan Nadarajan">
+      <div class="sender-name">Khandhan Nadarajan</div>
+      <div class="message-text">But yay okie down !!</div>
+      <div class="meta">12:44 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Yikee">
+      <div class="sender-name">Yikee</div>
+      <div class="message-text">me also down and happy to cover for myself!!!</div>
+      <div class="meta">12:44 pm</div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">lol okay luvs youse HAHA</div>
+      <div class="meta">12:44 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">Regardless drinks at Clay would be BYO</div>
+      <div class="meta">12:45 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message incoming" data-sender="Khandhan Nadarajan">
+      <div class="sender-name">Khandhan Nadarajan</div>
+      <div class="message-text">OMG SLAY</div>
+      <div class="meta">12:45 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Khandhan Nadarajan">
+      <div class="sender-name">Khandhan Nadarajan</div>
+      <div class="message-text">But I actually wanna do a good job Hehdhshshs</div>
+      <div class="meta">12:45 pm</div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">I might need help picking it up (so not to ruin surprise) but will pay for it</div>
+      <div class="meta">12:45 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message incoming" data-sender="Khandhan Nadarajan">
+      <div class="sender-name">Khandhan Nadarajan</div>
+      <div class="message-text">So maybe not too drunk ya</div>
+      <div class="meta">12:45 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Khandhan Nadarajan">
+      <div class="sender-name">Khandhan Nadarajan</div>
+      <div class="message-text">HSYDHSHS</div>
+      <div class="meta">12:45 pm</div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">yeahhhh their reply was “requires a bit of coordination so not too much sip is encouraged”<br><br>lol</div>
+      <div class="meta">12:46 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message incoming" data-sender="Khandhan Nadarajan">
+      <div class="sender-name">Khandhan Nadarajan</div>
+      <div class="message-text">“Why do you have 2 bottles of gin?”</div>
+      <div class="meta">12:46 pm</div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">lmao</div>
+      <div class="meta">12:46 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">plz</div>
+      <div class="meta">12:46 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">no</div>
+      <div class="meta">12:46 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">I was thinking</div>
+      <div class="meta">12:46 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">zoncello</div>
+      <div class="meta">12:46 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">lol</div>
+      <div class="meta">12:46 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message incoming" data-sender="Khandhan Nadarajan">
+      <div class="sender-name">Khandhan Nadarajan</div>
+      <div class="message-text">We just get wine la</div>
+      <div class="meta">12:46 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Khandhan Nadarajan">
+      <div class="sender-name">Khandhan Nadarajan</div>
+      <div class="message-text">O</div>
+      <div class="meta">12:46 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Khandhan Nadarajan">
+      <div class="sender-name">Khandhan Nadarajan</div>
+      <div class="message-text">Also can</div>
+      <div class="meta">12:46 pm</div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">wine can too</div>
+      <div class="meta">12:46 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message incoming" data-sender="Carina (Aruba) Lai">
+      <div class="sender-name">Carina (Aruba) Lai</div>
+      <div class="message-text">yes get wineeeee</div>
+      <div class="meta">12:46 pm</div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">depends what yall fancyyy</div>
+      <div class="meta">12:46 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">@Yan Hong Toh @Yan Sheen Toh still ok with plans? <This message was edited></div>
+      <div class="meta">12:47 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message incoming" data-sender="Khandhan Nadarajan">
+      <div class="sender-name">Khandhan Nadarajan</div>
+      <div class="message-text">Shge</div>
+      <div class="meta">12:47 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Khandhan Nadarajan">
+      <div class="sender-name">Khandhan Nadarajan</div>
+      <div class="message-text">Reply pls</div>
+      <div class="meta">12:47 pm</div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">also do we want wheel / hand / paint</div>
+      <div class="meta">12:48 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message incoming" data-sender="Yikee">
+      <div class="sender-name">Yikee</div>
+      <div class="message-text">i think wheel most worth</div>
+      <div class="meta">12:48 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Yan Hong Toh">
+      <div class="sender-name">Yan Hong Toh</div>
+      <div class="message-text">Yes I'm okay!</div>
+      <div class="meta">12:48 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Khandhan Nadarajan">
+      <div class="sender-name">Khandhan Nadarajan</div>
+      <div class="message-text">idk anything about pottery so happy with what yall decide :-)</div>
+      <div class="meta">12:49 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Yan Hong Toh">
+      <div class="sender-name">Yan Hong Toh</div>
+      <div class="message-text"><div class="media-placeholder">📷 [Attached GIF: 00000098-GIF-2026-07-09-12-54-13.mp4]</div></div>
+      <div class="meta">12:54 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Yan Sheen Toh">
+      <div class="sender-name">Yan Sheen Toh</div>
+      <div class="message-text">YES im down ofc</div>
+      <div class="meta">1:00 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Yan Sheen Toh">
+      <div class="sender-name">Yan Sheen Toh</div>
+      <div class="message-text">will cover for myself 😛</div>
+      <div class="meta">1:00 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Yan Sheen Toh">
+      <div class="sender-name">Yan Sheen Toh</div>
+      <div class="message-text">OOOOOOOO</div>
+      <div class="meta">1:00 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Yan Sheen Toh">
+      <div class="sender-name">Yan Sheen Toh</div>
+      <div class="message-text">can we have at least one bottle of zoncello</div>
+      <div class="meta">1:00 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Yan Sheen Toh">
+      <div class="sender-name">Yan Sheen Toh</div>
+      <div class="message-text"><div class="media-placeholder">📷 [Attached Sticker: 00000103-STICKER-2026-07-09-13-00-56.webp]</div></div>
+      <div class="meta">1:00 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Khandhan Nadarajan">
+      <div class="sender-name">Khandhan Nadarajan</div>
+      <div class="message-text">What did you even type to find this</div>
+      <div class="meta">1:01 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Yan Sheen Toh">
+      <div class="sender-name">Yan Sheen Toh</div>
+      <div class="message-text">LMAO</div>
+      <div class="meta">1:01 pm</div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">lol</div>
+      <div class="meta">4:27 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">anyone know of some good restaurant recommendations for south yarra? nearish Matilda and Yan</div>
+      <div class="meta">4:28 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message incoming" data-sender="Carina (Aruba) Lai">
+      <div class="sender-name">Carina (Aruba) Lai</div>
+      <div class="message-text">what cuisine</div>
+      <div class="meta">4:30 pm</div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">Asiannnnnn</div>
+      <div class="meta">4:30 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">or steaky</div>
+      <div class="meta">4:30 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message incoming" data-sender="Carina (Aruba) Lai">
+      <div class="sender-name">Carina (Aruba) Lai</div>
+      <div class="message-text">wow both very different cuisines but OK</div>
+      <div class="meta">4:31 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Carina (Aruba) Lai">
+      <div class="sender-name">Carina (Aruba) Lai</div>
+      <div class="message-text">i haven’t been to the area much<br>but if i give a quick google search, i’ve been OR been on my list for a while <br><br>1. bistro gitan - been <br>2. ⁠france soir - been <br>3. ⁠gilson<br>4. ⁠yugen<br>5. ⁠chez olivier - been <br>6. ⁠askal<br>7. ⁠steer dining room</div>
+      <div class="meta">4:35 pm</div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">Yugen is sooo good!<br><br>Yeah, I was having a look at Bistro Gatin, Beverly Rooftop, and maybe Token (been there for work was quite vibey) and was hoping anyone might know 😀<br><br>Mosaic’s also meant to be good but way off cuisine wise hahaha D:</div>
+      <div class="meta">4:45 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message incoming" data-sender="Carina (Aruba) Lai">
+      <div class="sender-name">Carina (Aruba) Lai</div>
+      <div class="message-text">yugen is $$$$ <br>the omakase is almost $300 per person 🫠</div>
+      <div class="meta">5:52 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Carina (Aruba) Lai">
+      <div class="sender-name">Carina (Aruba) Lai</div>
+      <div class="message-text">Beverly apparently <br>the food is meh and service is shit <br>and they racist</div>
+      <div class="meta">5:52 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Carina (Aruba) Lai">
+      <div class="sender-name">Carina (Aruba) Lai</div>
+      <div class="message-text">i saw on tiktok <br>it’s for the vibes and view</div>
+      <div class="meta">5:52 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Carina (Aruba) Lai">
+      <div class="sender-name">Carina (Aruba) Lai</div>
+      <div class="message-text">i have white wine from work if anyone wants <br>but it’s not a screw top and i don’t have a corkscrew opener <div class="media-placeholder">📷 [Attached Photo: 00000117-PHOTO-2026-07-09-17-53-19.jpg]</div></div>
+      <div class="meta">5:53 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Khandhan Nadarajan">
+      <div class="sender-name">Khandhan Nadarajan</div>
+      <div class="message-text">I have but I don’t like white wine hdhsjdjswj</div>
+      <div class="meta">6:02 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Khandhan Nadarajan">
+      <div class="sender-name">Khandhan Nadarajan</div>
+      <div class="message-text">But maybe someone can use for cooking shahjajhsha</div>
+      <div class="meta">6:03 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Carina (Aruba) Lai">
+      <div class="sender-name">Carina (Aruba) Lai</div>
+      <div class="message-text">eyy good idea <br>maybe i keep but i need to buy the opener FML</div>
+      <div class="meta">6:08 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Khandhan Nadarajan">
+      <div class="sender-name">Khandhan Nadarajan</div>
+      <div class="message-text">Ya good to have one incase</div>
+      <div class="meta">6:08 pm</div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">Screwdriver it hahaha</div>
+      <div class="meta">10:09 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message incoming" data-sender="Yan Sheen Toh">
+      <div class="sender-name">Yan Sheen Toh</div>
+      <div class="message-text">i don’t have any input on dinner but i can ask around :p</div>
+      <div class="meta">10:19 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Yan Sheen Toh">
+      <div class="sender-name">Yan Sheen Toh</div>
+      <div class="message-text">or we can go wine bar vibes?</div>
+      <div class="meta">10:19 pm</div>
+    </div>
 
-      const pInfo = participants[msg.sender] || { name: msg.sender, color: "text-emerald-400", isMe: false };
-      const isMe = pInfo.isMe;
+    <!-- 13 JULY 2026 -->
+    <div class="date-divider"><span>13 July 2026</span></div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">Hey fwends ~ plans for Sat Jul 25!<br><br>*Terrapotter booked 3:30 - 5:30* @ 405 St Kilda Rd <a href="https://share.google/3FstVEtrBcMrbpRB3" target="_blank">https://share.google/3FstVEtrBcMrbpRB3</a><br>Shu and I will rock up 3:30, can y’all be there at 3.15? Can I ask for someones help to pick up some booze and cups for me (will pay you back just need some hands)<br><br>followed by dinner<br>*Dinner @ Mr Ls 6:00pm onwards* @  23-25 Toorak Rd, <a href="https://share.google/ARNZ3RrogeEx8vNxQ" target="_blank">https://share.google/ARNZ3RrogeEx8vNxQ</a></div>
+      <div class="meta">4:35 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">@Carina (Aruba) Lai @Khandhan Nadarajan I owe you both monies so i deduct the $115 for terrapotter first and pay?</div>
+      <div class="meta">4:36 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message incoming" data-sender="Khandhan Nadarajan">
+      <div class="sender-name">Khandhan Nadarajan</div>
+      <div class="message-text">Okiee</div>
+      <div class="meta">4:36 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Carina (Aruba) Lai">
+      <div class="sender-name">Carina (Aruba) Lai</div>
+      <div class="message-text">thank you for booking!!</div>
+      <div class="meta">4:43 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Carina (Aruba) Lai">
+      <div class="sender-name">Carina (Aruba) Lai</div>
+      <div class="message-text">yes i’ll pay you the excess</div>
+      <div class="meta">4:43 pm</div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">xiexie!</div>
+      <div class="meta">4:49 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message incoming" data-sender="Carina (Aruba) Lai">
+      <div class="sender-name">Carina (Aruba) Lai</div>
+      <div class="message-text">paid</div>
+      <div class="meta">4:53 pm</div>
+    </div>
 
-      // Reactions badge generator
-      let reactionsHtml = '';
-      if (msg.reactions && msg.reactions.length > 0) {
-        reactionsHtml = `
-          <div class="absolute -bottom-2.5 ${isMe ? 'left-2' : 'right-2'} bg-[#222e35] border border-slate-700/60 rounded-full px-1.5 py-0.5 text-[11px] shadow-md flex items-center gap-0.5 z-10 cursor-pointer hover:scale-110 transition">
-            ${msg.reactions.join('')}
-          </div>
-        `;
-      }
+    <!-- 14 JULY 2026 -->
+    <div class="date-divider"><span>14 July 2026</span></div>
+    <div class="message incoming" data-sender="Yan Sheen Toh">
+      <div class="sender-name">Yan Sheen Toh</div>
+      <div class="message-text">okie thanks joshua for booking 😌</div>
+      <div class="meta">10:36 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Yan Sheen Toh">
+      <div class="sender-name">Yan Sheen Toh</div>
+      <div class="message-text">i paid ady</div>
+      <div class="meta">10:36 pm</div>
+    </div>
 
-      // Content payload switcher
-      let contentHtml = '';
-      if (msg.type === 'image') {
-        contentHtml = `
-          <div class="rounded-lg overflow-hidden my-1 cursor-pointer group relative" onclick="openLightbox('${msg.mediaUrl}', '${msg.caption || ''}')">
-            <img src="${msg.mediaUrl}" class="w-full max-h-60 object-cover rounded-lg group-hover:scale-105 transition duration-300" loading="lazy">
-            <div class="absolute inset-0 bg-black/20 group-hover:bg-transparent transition"></div>
-          </div>
-          ${msg.caption ? `<p class="text-sm text-slate-200 mt-1">${msg.caption}</p>` : ''}
-        `;
-      } else if (msg.type === 'map') {
-        contentHtml = `
-          <div class="bg-[#111b21] rounded-lg p-2.5 border border-slate-700/50 space-y-1.5 my-1">
-            <div class="flex items-center gap-2 text-emerald-400 font-medium text-xs">
-              <i class="fa-solid fa-location-dot text-red-400 text-sm"></i>
-              <span>${msg.locationName}</span>
-            </div>
-            <p class="text-[11px] text-slate-400 font-mono">${msg.coords}</p>
-            <div class="h-24 bg-slate-800 rounded-md overflow-hidden relative border border-slate-700 flex items-center justify-center">
-              <img src="https://images.unsplash.com/photo-1524661135-423995f22d0b?auto=format&fit=crop&w=600&q=80" class="w-full h-full object-cover opacity-60">
-              <div class="absolute w-6 h-6 bg-red-500/30 rounded-full flex items-center justify-center animate-ping"></div>
-              <i class="fa-solid fa-location-dot text-red-500 text-xl absolute"></i>
-            </div>
-          </div>
-          ${msg.caption ? `<p class="text-sm text-slate-200 mt-1">${msg.caption}</p>` : ''}
-        `;
-      } else if (msg.type === 'voice') {
-        contentHtml = `
-          <div class="flex items-center gap-3 bg-[#111b21]/60 p-2 rounded-lg border border-slate-700/40 my-1">
-            <button onclick="playVoiceNote(this)" class="w-8 h-8 rounded-full bg-emerald-500 text-slate-950 flex items-center justify-center flex-shrink-0 hover:scale-105 transition">
-              <i class="fa-solid fa-play text-xs ml-0.5"></i>
-            </button>
-            <div class="flex-1 space-y-1">
-              <div class="flex items-center gap-1 h-4">
-                <div class="w-1 bg-emerald-400 h-2 rounded-full"></div>
-                <div class="w-1 bg-emerald-400 h-4 rounded-full"></div>
-                <div class="w-1 bg-emerald-400 h-3 rounded-full"></div>
-                <div class="w-1 bg-slate-600 h-2 rounded-full"></div>
-                <div class="w-1 bg-slate-600 h-3 rounded-full"></div>
-                <div class="w-1 bg-slate-600 h-4 rounded-full"></div>
-                <div class="w-1 bg-slate-600 h-1 rounded-full"></div>
-                <div class="w-1 bg-slate-600 h-3 rounded-full"></div>
-              </div>
-              <p class="text-[10px] text-slate-400 font-mono">${msg.duration}</p>
-            </div>
-          </div>
-          ${msg.caption ? `<p class="text-xs text-slate-300 italic mt-1">${msg.caption}</p>` : ''}
-        `;
-      } else {
-        contentHtml = `<p class="text-sm text-slate-100 leading-relaxed">${msg.text}</p>`;
-      }
+    <!-- 15 JULY 2026 -->
+    <div class="date-divider"><span>15 July 2026</span></div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">tyty ❤️</div>
+      <div class="meta">9:41 am <span class="ticks">✓✓</span></div>
+    </div>
 
-      const ticks = isMe ? `<span class="text-cyan-400 text-[10px] ml-1"><i class="fa-solid fa-check-double"></i></span>` : '';
+    <!-- 25 JULY 2026 -->
+    <div class="date-divider"><span>25 July 2026</span></div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">Hey friends - see everyone later!!! Plz try be there around 3.15 - Shu am I will arrive around 3:30!!</div>
+      <div class="meta">10:46 am <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message incoming" data-sender="Khandhan Nadarajan">
+      <div class="sender-name">Khandhan Nadarajan</div>
+      <div class="message-text"><div class="media-placeholder">📷 [Attached Sticker: 00000136-STICKER-2026-07-25-10-47-09.webp]</div></div>
+      <div class="meta">10:47 am</div>
+    </div>
+    <div class="message incoming" data-sender="Khandhan Nadarajan">
+      <div class="sender-name">Khandhan Nadarajan</div>
+      <div class="message-text"><div class="media-placeholder">📷 [Attached Sticker: 00000137-STICKER-2026-07-25-10-47-12.webp]</div></div>
+      <div class="meta">10:47 am</div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">Given the fact that there are plans on the 1st we won’t do a cake today (will see if I can sneak out to pick up a slice but Shu watching me like a hawk) and I’ll arrange for a cake for the 1st!</div>
+      <div class="meta">10:47 am <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message incoming" data-sender="Yan Hong Toh">
+      <div class="sender-name">Yan Hong Toh</div>
+      <div class="message-text">Can't wait to do pot with everyone!</div>
+      <div class="meta">10:56 am</div>
+    </div>
+    <div class="message incoming" data-sender="Yan Hong Toh">
+      <div class="sender-name">Yan Hong Toh</div>
+      <div class="message-text"><div class="media-placeholder">📷 [Attached Sticker: 00000140-STICKER-2026-07-25-10-57-00.webp]</div></div>
+      <div class="meta">10:57 am</div>
+    </div>
+    <div class="message incoming" data-sender="Yan Hong Toh">
+      <div class="sender-name">Yan Hong Toh</div>
+      <div class="message-text">Also so I'm confused we bring drinks and they let us drink in there??</div>
+      <div class="meta">10:57 am</div>
+    </div>
+    <div class="message incoming" data-sender="Khandhan Nadarajan">
+      <div class="sender-name">Khandhan Nadarajan</div>
+      <div class="message-text">Yah</div>
+      <div class="meta">10:58 am</div>
+    </div>
+    <div class="message incoming" data-sender="Carina (Aruba) Lai">
+      <div class="sender-name">Carina (Aruba) Lai</div>
+      <div class="message-text">oh shit i forgot about drinks</div>
+      <div class="meta">12:11 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Carina (Aruba) Lai">
+      <div class="sender-name">Carina (Aruba) Lai</div>
+      <div class="message-text">who buying</div>
+      <div class="meta">12:11 pm</div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">Keke got dw</div>
+      <div class="meta">12:12 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message incoming" data-sender="Khandhan Nadarajan">
+      <div class="sender-name">Khandhan Nadarajan</div>
+      <div class="message-text">Fuck</div>
+      <div class="meta">12:15 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Carina (Aruba) Lai">
+      <div class="sender-name">Carina (Aruba) Lai</div>
+      <div class="message-text">i’m going out for lunch soon<br>i can get extra if you want</div>
+      <div class="meta">12:16 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Carina (Aruba) Lai">
+      <div class="sender-name">Carina (Aruba) Lai</div>
+      <div class="message-text">pls let me know</div>
+      <div class="meta">12:16 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Khandhan Nadarajan">
+      <div class="sender-name">Khandhan Nadarajan</div>
+      <div class="message-text">I was gonna go bws before I go</div>
+      <div class="meta">12:17 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Carina (Aruba) Lai">
+      <div class="sender-name">Carina (Aruba) Lai</div>
+      <div class="message-text">tbh i don’t think we’ll be drinking much <br>we’re doing the pottery wheel right</div>
+      <div class="meta">12:17 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Khandhan Nadarajan">
+      <div class="sender-name">Khandhan Nadarajan</div>
+      <div class="message-text">Very close by</div>
+      <div class="meta">12:17 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Carina (Aruba) Lai">
+      <div class="sender-name">Carina (Aruba) Lai</div>
+      <div class="message-text">our hands will be dirty</div>
+      <div class="meta">12:17 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Khandhan Nadarajan">
+      <div class="sender-name">Khandhan Nadarajan</div>
+      <div class="message-text">Ya I want to do rly well HSHDSHSJ</div>
+      <div class="meta">12:17 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Carina (Aruba) Lai">
+      <div class="sender-name">Carina (Aruba) Lai</div>
+      <div class="message-text">how many bottles do we have now <br>maybe 2 is enough?</div>
+      <div class="meta">12:17 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Khandhan Nadarajan">
+      <div class="sender-name">Khandhan Nadarajan</div>
+      <div class="message-text">gonna get 2 red wines and 1 limoncello spritz</div>
+      <div class="meta">12:17 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Carina (Aruba) Lai">
+      <div class="sender-name">Carina (Aruba) Lai</div>
+      <div class="message-text">ok that’s a lot i see</div>
+      <div class="meta">12:18 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Khandhan Nadarajan">
+      <div class="sender-name">Khandhan Nadarajan</div>
+      <div class="message-text">HAHXHSHSHS</div>
+      <div class="meta">12:18 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Carina (Aruba) Lai">
+      <div class="sender-name">Carina (Aruba) Lai</div>
+      <div class="message-text">ok thank u <br>lmk how much to transfer</div>
+      <div class="meta">12:18 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Khandhan Nadarajan">
+      <div class="sender-name">Khandhan Nadarajan</div>
+      <div class="message-text">7 of us</div>
+      <div class="meta">12:18 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Khandhan Nadarajan">
+      <div class="sender-name">Khandhan Nadarajan</div>
+      <div class="message-text">Josh gonna pay he said</div>
+      <div class="meta">12:18 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Khandhan Nadarajan">
+      <div class="sender-name">Khandhan Nadarajan</div>
+      <div class="message-text">No budget</div>
+      <div class="meta">12:18 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Khandhan Nadarajan">
+      <div class="sender-name">Khandhan Nadarajan</div>
+      <div class="message-text">But Idm splitting also</div>
+      <div class="meta">12:18 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Carina (Aruba) Lai">
+      <div class="sender-name">Carina (Aruba) Lai</div>
+      <div class="message-text">shall we bring snacks</div>
+      <div class="meta">12:18 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Carina (Aruba) Lai">
+      <div class="sender-name">Carina (Aruba) Lai</div>
+      <div class="message-text">🤭</div>
+      <div class="meta">12:18 pm</div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">Can bring along if you want! And also, I think I asked Khandhan to get some of those red plastic or paper cups so that we can drink with dirty hands but if you think three bottles is going to be too much we can do two! <This message was edited></div>
+      <div class="meta">12:23 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message incoming" data-sender="Khandhan Nadarajan">
+      <div class="sender-name">Khandhan Nadarajan</div>
+      <div class="message-text">No we get 3 la</div>
+      <div class="meta">12:24 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Khandhan Nadarajan">
+      <div class="sender-name">Khandhan Nadarajan</div>
+      <div class="message-text">What are we wearing ah</div>
+      <div class="meta">1:40 pm</div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">So I’m getting Shu to pack a go out shirt that works well with jeans</div>
+      <div class="meta">2:05 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">Then jeans and tshirt for activity</div>
+      <div class="meta">2:06 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message incoming" data-sender="Khandhan Nadarajan">
+      <div class="sender-name">Khandhan Nadarajan</div>
+      <div class="message-text">Hmhmhmh</div>
+      <div class="meta">2:14 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Khandhan Nadarajan">
+      <div class="sender-name">Khandhan Nadarajan</div>
+      <div class="message-text">I cba change so it has to work for both</div>
+      <div class="meta">2:14 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Khandhan Nadarajan">
+      <div class="sender-name">Khandhan Nadarajan</div>
+      <div class="message-text"><div class="media-placeholder">📷 [Attached Sticker: 00000172-STICKER-2026-07-25-14-14-32.webp]</div></div>
+      <div class="meta">2:14 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Carina (Aruba) Lai">
+      <div class="sender-name">Carina (Aruba) Lai</div>
+      <div class="message-text">st kilda road location right</div>
+      <div class="meta">2:38 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Khandhan Nadarajan">
+      <div class="sender-name">Khandhan Nadarajan</div>
+      <div class="message-text">Yes</div>
+      <div class="meta">2:38 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Yan Sheen Toh">
+      <div class="sender-name">Yan Sheen Toh</div>
+      <div class="message-text">omg fuck sorry guys i overslept omg</div>
+      <div class="meta">2:40 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Yan Sheen Toh">
+      <div class="sender-name">Yan Sheen Toh</div>
+      <div class="message-text">fuck fuck 😭</div>
+      <div class="meta">2:40 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Yan Sheen Toh">
+      <div class="sender-name">Yan Sheen Toh</div>
+      <div class="message-text">i arrived home at 7am jn</div>
+      <div class="meta">2:40 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Carina (Aruba) Lai">
+      <div class="sender-name">Carina (Aruba) Lai</div>
+      <div class="message-text">😅</div>
+      <div class="meta">2:40 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Carina (Aruba) Lai">
+      <div class="sender-name">Carina (Aruba) Lai</div>
+      <div class="message-text">ok go get ready now girl</div>
+      <div class="meta">2:40 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Khandhan Nadarajan">
+      <div class="sender-name">Khandhan Nadarajan</div>
+      <div class="message-text"><div class="media-placeholder">📷 [Attached Sticker: 00000180-STICKER-2026-07-25-14-42-43.webp]</div></div>
+      <div class="meta">2:42 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Khandhan Nadarajan">
+      <div class="sender-name">Khandhan Nadarajan</div>
+      <div class="message-text">I pray for your safe and speedy journey</div>
+      <div class="meta">2:43 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Khandhan Nadarajan">
+      <div class="sender-name">Khandhan Nadarajan</div>
+      <div class="message-text">I’m gonna be so early BSHDSHSJ</div>
+      <div class="meta">2:49 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Khandhan Nadarajan">
+      <div class="sender-name">Khandhan Nadarajan</div>
+      <div class="message-text">I’ll reach at 3</div>
+      <div class="meta">2:49 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Khandhan Nadarajan">
+      <div class="sender-name">Khandhan Nadarajan</div>
+      <div class="message-text">I thought getting alc would take more time</div>
+      <div class="meta">2:49 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Carina (Aruba) Lai">
+      <div class="sender-name">Carina (Aruba) Lai</div>
+      <div class="message-text">me going to be late by a few mins sorry 😅</div>
+      <div class="meta">2:50 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Yikee">
+      <div class="sender-name">Yikee</div>
+      <div class="message-text">on way!!! 😙</div>
+      <div class="meta">2:56 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Khandhan Nadarajan">
+      <div class="sender-name">Khandhan Nadarajan</div>
+      <div class="message-text">I’m here</div>
+      <div class="meta">3:04 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Khandhan Nadarajan">
+      <div class="sender-name">Khandhan Nadarajan</div>
+      <div class="message-text"><div class="media-placeholder">📷 [Attached Sticker: 00000188-STICKER-2026-07-25-15-04-28.webp]</div></div>
+      <div class="meta">3:04 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Carina (Aruba) Lai">
+      <div class="sender-name">Carina (Aruba) Lai</div>
+      <div class="message-text">me otw</div>
+      <div class="meta">3:05 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Yan Hong Toh">
+      <div class="sender-name">Yan Hong Toh</div>
+      <div class="message-text">Same</div>
+      <div class="meta">3:05 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Carina (Aruba) Lai">
+      <div class="sender-name">Carina (Aruba) Lai</div>
+      <div class="message-text">my eta is 3:20</div>
+      <div class="meta">3:05 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Yan Hong Toh">
+      <div class="sender-name">Yan Hong Toh</div>
+      <div class="message-text">Same lol</div>
+      <div class="meta">3:05 pm</div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">Lmao no stress friends</div>
+      <div class="meta">3:06 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">Also we just doing one outfit</div>
+      <div class="meta">3:06 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">lol so traffic is terrible</div>
+      <div class="meta">3:14 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">We are PTE</div>
+      <div class="meta">3:14 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">Otw*</div>
+      <div class="meta">3:14 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">But late byb10?</div>
+      <div class="meta">3:14 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message incoming" data-sender="Yan Sheen Toh">
+      <div class="sender-name">Yan Sheen Toh</div>
+      <div class="message-text">what’s yours eta josh</div>
+      <div class="meta">3:14 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Yan Sheen Toh">
+      <div class="sender-name">Yan Sheen Toh</div>
+      <div class="message-text">OK GOOD</div>
+      <div class="meta">3:15 pm</div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">Be there in 5 :3</div>
+      <div class="meta">3:29 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message incoming" data-sender="Yan Sheen Toh">
+      <div class="sender-name">Yan Sheen Toh</div>
+      <div class="message-text">have u arrived</div>
+      <div class="meta">3:33 pm</div>
+    </div>
 
-      return `
-        <div class="flex ${isMe ? 'justify-end' : 'justify-start'} message-item animate-pop my-1">
-          <div class="relative max-w-[82%] sm:max-w-[75%] px-3 py-2 rounded-xl shadow-sm ${isMe ? 'bubble-out' : 'bubble-in'}">
-            ${!isMe ? `<p class="text-[11px] font-semibold ${pInfo.color} mb-0.5">${pInfo.name}</p>` : ''}
-            ${contentHtml}
-            <div class="flex items-center justify-end gap-1 mt-1 text-[10px] text-slate-400">
-              <span>${msg.time}</span>
-              ${ticks}
-            </div>
-            ${reactionsHtml}
-          </div>
-        </div>
-      `;
-    }
+    <!-- 26 JULY 2026 -->
+    <div class="date-divider"><span>26 July 2026</span></div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">Hi fwends</div>
+      <div class="meta">8:26 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">Cash collection time hehe</div>
+      <div class="meta">8:26 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">SOMEONE threw away my reciept ystdy 😅 butttt we all ate the same shit (apart from me and my duck lol) so I figured can jsut split?</div>
+      <div class="meta">8:27 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">Dindin was $98 pp</div>
+      <div class="meta">8:28 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message incoming" data-sender="Carina (Aruba) Lai">
+      <div class="sender-name">Carina (Aruba) Lai</div>
+      <div class="message-text">oh that’s not bad</div>
+      <div class="meta">8:41 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Carina (Aruba) Lai">
+      <div class="sender-name">Carina (Aruba) Lai</div>
+      <div class="message-text">paid!</div>
+      <div class="meta">8:42 pm</div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">Tqtqtqttq</div>
+      <div class="meta">9:03 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message incoming" data-sender="Khandhan Nadarajan">
+      <div class="sender-name">Khandhan Nadarajan</div>
+      <div class="message-text">Okie</div>
+      <div class="meta">9:03 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Khandhan Nadarajan">
+      <div class="sender-name">Khandhan Nadarajan</div>
+      <div class="message-text">Drinks was 65</div>
+      <div class="meta">9:04 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Khandhan Nadarajan">
+      <div class="sender-name">Khandhan Nadarajan</div>
+      <div class="message-text">We all split?</div>
+      <div class="meta">9:04 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Khandhan Nadarajan">
+      <div class="sender-name">Khandhan Nadarajan</div>
+      <div class="message-text">Everyone pay me 10.84 please 😍</div>
+      <div class="meta">9:04 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Khandhan Nadarajan">
+      <div class="sender-name">Khandhan Nadarajan</div>
+      <div class="message-text"><div class="media-placeholder">📷 [Attached Sticker: 00000214-STICKER-2026-07-26-21-04-33.webp]</div></div>
+      <div class="meta">9:04 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Yan Sheen Toh">
+      <div class="sender-name">Yan Sheen Toh</div>
+      <div class="message-text">okie paid</div>
+      <div class="meta">10:28 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Yan Sheen Toh">
+      <div class="sender-name">Yan Sheen Toh</div>
+      <div class="message-text"><div class="media-placeholder">📷 [Attached Sticker: 00000216-STICKER-2026-07-26-22-28-33.webp]</div></div>
+      <div class="meta">10:28 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Khandhan Nadarajan">
+      <div class="sender-name">Khandhan Nadarajan</div>
+      <div class="message-text">Yay</div>
+      <div class="meta">10:29 pm</div>
+    </div>
 
-    function renderAllMessagesUntil(index) {
-      const list = document.getElementById('messagesList');
-      list.innerHTML = '';
-      for (let i = 0; i <= index && i < fullChatHistory.length; i++) {
-        list.innerHTML += createMessageMarkup(fullChatHistory[i]);
-      }
-      currentDisplayedIndex = index;
-      scrollToBottom();
-    }
+    <!-- 17 AUGUST 2026 -->
+    <div class="date-divider"><span>17 August 2026</span></div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">Hi Friends ❤️</div>
+      <div class="meta">2:01 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">which of y'alls houses</div>
+      <div class="meta">2:01 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">is easiest for everyone to get to?</div>
+      <div class="meta">2:01 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message incoming" data-sender="Carina (Aruba) Lai">
+      <div class="sender-name">Carina (Aruba) Lai</div>
+      <div class="message-text">i guess khan’s place is in the middle for all of us</div>
+      <div class="meta">2:02 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Carina (Aruba) Lai">
+      <div class="sender-name">Carina (Aruba) Lai</div>
+      <div class="message-text">bruh shu was telling us about her parents wanting to fly to melb in Oct</div>
+      <div class="meta">2:02 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Khandhan Nadarajan">
+      <div class="sender-name">Khandhan Nadarajan</div>
+      <div class="message-text">Eh really?</div>
+      <div class="meta">2:02 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Carina (Aruba) Lai">
+      <div class="sender-name">Carina (Aruba) Lai</div>
+      <div class="message-text">and we were like OH why are they coming <br>💀💀</div>
+      <div class="meta">2:02 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Carina (Aruba) Lai">
+      <div class="sender-name">Carina (Aruba) Lai</div>
+      <div class="message-text">because sheen is in north melb <br>no ?</div>
+      <div class="meta">2:03 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Khandhan Nadarajan">
+      <div class="sender-name">Khandhan Nadarajan</div>
+      <div class="message-text">But I’m south</div>
+      <div class="meta">2:03 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Khandhan Nadarajan">
+      <div class="sender-name">Khandhan Nadarajan</div>
+      <div class="message-text">Aren’t you and hong in the middle?</div>
+      <div class="meta">2:03 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Khandhan Nadarajan">
+      <div class="sender-name">Khandhan Nadarajan</div>
+      <div class="message-text">I mean I’m happy to have everyone come to me</div>
+      <div class="meta">2:04 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Carina (Aruba) Lai">
+      <div class="sender-name">Carina (Aruba) Lai</div>
+      <div class="message-text">eh idk <br>then maybe hong’s or mine then</div>
+      <div class="meta">2:04 pm</div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">yeah i will tell y'all some other time</div>
+      <div class="meta">2:05 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">but fking</div>
+      <div class="meta">2:05 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">heartattack</div>
+      <div class="meta">2:05 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">someone decide for me my brain 🤯</div>
+      <div class="meta">2:05 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message incoming" data-sender="Yan Sheen Toh">
+      <div class="sender-name">Yan Sheen Toh</div>
+      <div class="message-text">shall we do hong’s then?</div>
+      <div class="meta">2:06 pm</div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">Can you remind me address?</div>
+      <div class="meta">2:06 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message incoming" data-sender="Yan Sheen Toh">
+      <div class="sender-name">Yan Sheen Toh</div>
+      <div class="message-text">18 Russell Place, Melbourne, 3000</div>
+      <div class="meta">2:06 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Carina (Aruba) Lai">
+      <div class="sender-name">Carina (Aruba) Lai</div>
+      <div class="message-text">what’s happening at hong’s</div>
+      <div class="meta">2:10 pm</div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">you will find out soon 😀</div>
+      <div class="meta">2:11 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message incoming" data-sender="Khandhan Nadarajan">
+      <div class="sender-name">Khandhan Nadarajan</div>
+      <div class="message-text"><div class="media-placeholder">📷 [Attached Sticker: 00000239-STICKER-2026-08-17-14-25-20.webp]</div></div>
+      <div class="meta">2:25 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Carina (Aruba) Lai">
+      <div class="sender-name">Carina (Aruba) Lai</div>
+      <div class="message-text">wow josh also surprising us guys</div>
+      <div class="meta">2:39 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Carina (Aruba) Lai">
+      <div class="sender-name">Carina (Aruba) Lai</div>
+      <div class="message-text">maybe he is also proposing to us 😍</div>
+      <div class="meta">2:39 pm</div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">does anyone have a speaker?</div>
+      <div class="meta">2:48 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message incoming" data-sender="Khandhan Nadarajan">
+      <div class="sender-name">Khandhan Nadarajan</div>
+      <div class="message-text">I’ll save you time Joshua</div>
+      <div class="meta">2:55 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Khandhan Nadarajan">
+      <div class="sender-name">Khandhan Nadarajan</div>
+      <div class="message-text">No thank you 🥰🥰🥰🥰</div>
+      <div class="meta">2:55 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Khandhan Nadarajan">
+      <div class="sender-name">Khandhan Nadarajan</div>
+      <div class="message-text">Yeah I got</div>
+      <div class="meta">2:55 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Yan Hong Toh">
+      <div class="sender-name">Yan Hong Toh</div>
+      <div class="message-text">Wait so how many ppl</div>
+      <div class="meta">3:03 pm</div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">relax</div>
+      <div class="meta">3:04 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">just a meeting point 😀</div>
+      <div class="meta">3:04 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">like big one ah</div>
+      <div class="meta">3:04 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message incoming" data-sender="Khandhan Nadarajan">
+      <div class="sender-name">Khandhan Nadarajan</div>
+      <div class="message-text">It’s the Bose one</div>
+      <div class="meta">3:04 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Khandhan Nadarajan">
+      <div class="sender-name">Khandhan Nadarajan</div>
+      <div class="message-text">It’s pretty loud</div>
+      <div class="meta">3:04 pm</div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">fab</div>
+      <div class="meta">3:05 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message incoming" data-sender="Khandhan Nadarajan">
+      <div class="sender-name">Khandhan Nadarajan</div>
+      <div class="message-text">Her</div>
+      <div class="meta">3:05 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Khandhan Nadarajan">
+      <div class="sender-name">Khandhan Nadarajan</div>
+      <div class="message-text"><div class="media-placeholder">📷 [Attached Photo: 00000254-PHOTO-2026-08-17-15-05-27.jpg]</div></div>
+      <div class="meta">3:05 pm</div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">noice</div>
+      <div class="meta">3:06 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message incoming" data-sender="Carina (Aruba) Lai">
+      <div class="sender-name">Carina (Aruba) Lai</div>
+      <div class="message-text">josh gonna queue this on the speaker <div class="media-placeholder">📷 [Attached Photo: 00000256-PHOTO-2026-08-17-15-07-25.jpg]</div></div>
+      <div class="meta">3:07 pm</div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">fuck off lah 😀</div>
+      <div class="meta">3:12 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message incoming" data-sender="Khandhan Nadarajan">
+      <div class="sender-name">Khandhan Nadarajan</div>
+      <div class="message-text"><div class="media-placeholder">📷 [Attached GIF: 00000258-GIF-2026-08-17-15-13-50.mp4]</div></div>
+      <div class="meta">3:13 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Khandhan Nadarajan">
+      <div class="sender-name">Khandhan Nadarajan</div>
+      <div class="message-text">Or smth like this?</div>
+      <div class="meta">3:13 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Khandhan Nadarajan">
+      <div class="sender-name">Khandhan Nadarajan</div>
+      <div class="message-text"><div class="media-placeholder">📷 [Attached GIF: 00000260-GIF-2026-08-17-15-14-13.mp4]</div></div>
+      <div class="meta">3:14 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Khandhan Nadarajan">
+      <div class="sender-name">Khandhan Nadarajan</div>
+      <div class="message-text">But with my small speaker</div>
+      <div class="meta">3:14 pm</div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">that one maybe</div>
+      <div class="meta">3:14 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">what are y'alls breakfast/bruch foods typically</div>
+      <div class="meta">3:23 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message incoming" data-sender="Carina (Aruba) Lai">
+      <div class="sender-name">Carina (Aruba) Lai</div>
+      <div class="message-text">HDKDNDJDNSNSBS</div>
+      <div class="meta">3:26 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Carina (Aruba) Lai">
+      <div class="sender-name">Carina (Aruba) Lai</div>
+      <div class="message-text">we don’t have boombox so sorry</div>
+      <div class="meta">3:26 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Carina (Aruba) Lai">
+      <div class="sender-name">Carina (Aruba) Lai</div>
+      <div class="message-text">uh we eat everything 🤭</div>
+      <div class="meta">3:27 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Carina (Aruba) Lai">
+      <div class="sender-name">Carina (Aruba) Lai</div>
+      <div class="message-text">like asian brunch food or just brunch in general<br>? <br>i guess pancakes / waffles lol</div>
+      <div class="meta">3:27 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Carina (Aruba) Lai">
+      <div class="sender-name">Carina (Aruba) Lai</div>
+      <div class="message-text">TOAST</div>
+      <div class="meta">3:28 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Khandhan Nadarajan">
+      <div class="sender-name">Khandhan Nadarajan</div>
+      <div class="message-text">Rt</div>
+      <div class="meta">3:34 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Khandhan Nadarajan">
+      <div class="sender-name">Khandhan Nadarajan</div>
+      <div class="message-text">Same</div>
+      <div class="meta">3:34 pm</div>
+    </div>
+    <div class="message system">Joshua Margaillan added Aisyah Atiqah and Leo (Yi Jung) Lee</div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">Hi friends</div>
+      <div class="meta">4:14 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">So our group grows by 2</div>
+      <div class="meta">4:14 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">Adding in @Aisyah Atiqah (Aisyah) and @Leo (Yi Jung) Lee (Leo) who are flying in from sg hehe</div>
+      <div class="meta">4:14 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message incoming" data-sender="Aisyah Atiqah">
+      <div class="sender-name">Aisyah Atiqah</div>
+      <div class="message-text">Hey guys! Nice to emeet you im Aisyah 🙂</div>
+      <div class="meta">4:14 pm</div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">so corporate yuck</div>
+      <div class="meta">4:15 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">&lt;3 <This message was edited></div>
+      <div class="meta">4:15 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message incoming" data-sender="Aisyah Atiqah">
+      <div class="sender-name">Aisyah Atiqah</div>
+      <div class="message-text">HAHAHAHA replying emails concurrently</div>
+      <div class="meta">4:15 pm</div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">I would like to stress that this doc is a *work in progress* but it contains almost everything re that weekend (will pin)<br><a href="https://docs.google.com/presentation/d/1f2Dz5icF7Azdli9gSTEpUlUbMyOXkObsHkLfvlpkygQ/edit?usp=sharing" target="_blank">https://docs.google.com/presentation/d/1f2Dz5icF7Azdli9gSTEpUlUbMyOXkObsHkLfvlpkygQ/edit?usp=sharing</a></div>
+      <div class="meta">4:16 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message system">Joshua Margaillan pinned a message</div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">Now</div>
+      <div class="meta">4:17 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">if any</div>
+      <div class="meta">4:17 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">of</div>
+      <div class="meta">4:17 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">you</div>
+      <div class="meta">4:17 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">leak</div>
+      <div class="meta">4:17 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">anything</div>
+      <div class="meta">4:17 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">will murder</div>
+      <div class="meta">4:17 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">oki?</div>
+      <div class="meta">4:17 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">Long story short - y'alls weekend is booked out. Melbourne peeps will get a car from Hong's up on the sat, Leo and Aisyah will be there when you guys arrive</div>
+      <div class="meta">4:19 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message incoming" data-sender="Yikee">
+      <div class="sender-name">Yikee</div>
+      <div class="message-text">YAY so exciting!!!!!</div>
+      <div class="meta">4:19 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Khandhan Nadarajan">
+      <div class="sender-name">Khandhan Nadarajan</div>
+      <div class="message-text">HEYCHWHDHWHSJWHE</div>
+      <div class="meta">4:20 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Khandhan Nadarajan">
+      <div class="sender-name">Khandhan Nadarajan</div>
+      <div class="message-text">YAY</div>
+      <div class="meta">4:20 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Khandhan Nadarajan">
+      <div class="sender-name">Khandhan Nadarajan</div>
+      <div class="message-text">Graphic design is his passion</div>
+      <div class="meta">4:21 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Carina (Aruba) Lai">
+      <div class="sender-name">Carina (Aruba) Lai</div>
+      <div class="message-text">OBVI!</div>
+      <div class="meta">4:21 pm</div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">*I need some things from a hive mind first lol): *<br>- Leo & Aisyah got shu nails for her bday under the pretence of for Oliv Dean. I need y'alls help to get her to do in Oct and NOT in Sep before our Europe Trip (without alerting her). @Khandhan Nadarajan do you reckon you could start speaking about nails for oliv or too obvs? At worst, I will find some stick ons lol... :(<br><br>- She will obvs wanna call everyone post proposal so I was thinking of telling her that we have calls scheduled (so we can have some time just us first, do a bit of a debrief etc.) Only issue here: how the fuck do we call y'all without it being obvious y'all in same place... HAHAHHAHAHA <This message was edited></div>
+      <div class="meta">4:23 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">re the latter, I was thinking y'all could plan like a day out or something a week or two before (which shuey and I can say yes to first) then i'll tell her when we drive out on Fri that I already told y'all we cannot make it for the anniversary surprise stay</div>
+      <div class="meta">4:24 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">but then y'all will need to be outside or something</div>
+      <div class="meta">4:25 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">so halp</div>
+      <div class="meta">4:25 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message incoming" data-sender="Khandhan Nadarajan">
+      <div class="sender-name">Khandhan Nadarajan</div>
+      <div class="message-text">Omg</div>
+      <div class="meta">4:26 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Khandhan Nadarajan">
+      <div class="sender-name">Khandhan Nadarajan</div>
+      <div class="message-text">HEYDHSHDHS how</div>
+      <div class="meta">4:26 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Khandhan Nadarajan">
+      <div class="sender-name">Khandhan Nadarajan</div>
+      <div class="message-text">But she hasn’t told me anything about her getting her nails done for Olivia</div>
+      <div class="meta">4:26 pm</div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">@Khandhan Nadarajan maybe talk about wanting to find outfit inspo for Oliv Dean <a href="https://www.reddit.com/r/OliviaDean/comments/1t4wyyu/concert_outfits/" target="_blank">https://www.reddit.com/r/OliviaDean/comments/1t4wyyu/concert_outfits/</a></div>
+      <div class="meta">4:28 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">can say something like i wanna get my nails done for it too would be cute</div>
+      <div class="meta">4:28 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message incoming" data-sender="Aisyah Atiqah">
+      <div class="sender-name">Aisyah Atiqah</div>
+      <div class="message-text">Someone in the toilet someone in the shower someone sit in the car</div>
+      <div class="meta">4:28 pm</div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">then oops but bouldering</div>
+      <div class="meta">4:28 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">then fuck it lah</div>
+      <div class="meta">4:28 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message incoming" data-sender="Carina (Aruba) Lai">
+      <div class="sender-name">Carina (Aruba) Lai</div>
+      <div class="message-text">what if we don’t pick up the call</div>
+      <div class="meta">4:28 pm</div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">cb got 7 of yall</div>
+      <div class="meta">4:28 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">AHHAHAHA</div>
+      <div class="meta">4:28 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message incoming" data-sender="Carina (Aruba) Lai">
+      <div class="sender-name">Carina (Aruba) Lai</div>
+      <div class="message-text">like you said <br>we never pick up our phones 🤪</div>
+      <div class="meta">4:28 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Aisyah Atiqah">
+      <div class="sender-name">Aisyah Atiqah</div>
+      <div class="message-text">And the rest can just dont pickup hahaha</div>
+      <div class="meta">4:29 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Aisyah Atiqah">
+      <div class="sender-name">Aisyah Atiqah</div>
+      <div class="message-text">But if all dont pickup its abit sus</div>
+      <div class="meta">4:29 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Khandhan Nadarajan">
+      <div class="sender-name">Khandhan Nadarajan</div>
+      <div class="message-text">Okie I try</div>
+      <div class="meta">4:29 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Khandhan Nadarajan">
+      <div class="sender-name">Khandhan Nadarajan</div>
+      <div class="message-text"><div class="media-placeholder">📷 [Attached Sticker: 00000314-STICKER-2026-08-17-16-29-20.webp]</div></div>
+      <div class="meta">4:29 pm</div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">maybe a hot springs day @ Melbourne people? Then you guys wouldn't be on your phone necessarily</div>
+      <div class="meta">4:29 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">but that means y'all have to sell wanting to go hotsprings</div>
+      <div class="meta">4:29 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message incoming" data-sender="Khandhan Nadarajan">
+      <div class="sender-name">Khandhan Nadarajan</div>
+      <div class="message-text">I rarely pick up straight away HEHDHSHSHSJS</div>
+      <div class="meta">4:29 pm</div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">@Yan Hong Toh @Yikee</div>
+      <div class="meta">4:29 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">basically we need a plan on how to avoid you guys getting caught from ~2/3pm - 6pm lol</div>
+      <div class="meta">4:30 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">@Leo (Yi Jung) Lee @Aisyah Atiqah I reckon you guys in one of the rooms can say another part of Diana's house? lol</div>
+      <div class="meta">4:31 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message incoming" data-sender="Aisyah Atiqah">
+      <div class="sender-name">Aisyah Atiqah</div>
+      <div class="message-text">Yeah or we just say give us a minute making babies</div>
+      <div class="meta">4:31 pm</div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">Help</div>
+      <div class="meta">4:32 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message incoming" data-sender="Aisyah Atiqah">
+      <div class="sender-name">Aisyah Atiqah</div>
+      <div class="message-text">I think for us will be the easiest if we dont pickup</div>
+      <div class="meta">4:32 pm</div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">The thing is I feel like she would expect all of you to know that this is happening and I would’ve expected you to be available for a phone call after</div>
+      <div class="meta">4:32 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message incoming" data-sender="Khandhan Nadarajan">
+      <div class="sender-name">Khandhan Nadarajan</div>
+      <div class="message-text">Also she has all of our locations HEHXHSHSHS</div>
+      <div class="meta">4:33 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Khandhan Nadarajan">
+      <div class="sender-name">Khandhan Nadarajan</div>
+      <div class="message-text">need to disable for a bit when the time comes</div>
+      <div class="meta">4:33 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Aisyah Atiqah">
+      <div class="sender-name">Aisyah Atiqah</div>
+      <div class="message-text">Okayy we’ll take the call from the room</div>
+      <div class="meta">4:34 pm</div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">I'll give everyone timings hahah</div>
+      <div class="meta">4:34 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">so y'all can prep and make sure house quiet</div>
+      <div class="meta">4:34 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message incoming" data-sender="Aisyah Atiqah">
+      <div class="sender-name">Aisyah Atiqah</div>
+      <div class="message-text">Oh and when she call everyone screen record! Then we can compile into a video</div>
+      <div class="meta">4:35 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Yan Hong Toh">
+      <div class="sender-name">Yan Hong Toh</div>
+      <div class="message-text">Good luck @Joshua Margaillan</div>
+      <div class="meta">4:39 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Yan Hong Toh">
+      <div class="sender-name">Yan Hong Toh</div>
+      <div class="message-text">Go through her phone when she sleeps lol but then if she catches you.. no more engagement</div>
+      <div class="meta">4:39 pm</div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">y'all disable her following you lah xD</div>
+      <div class="meta">4:40 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message incoming" data-sender="Yan Hong Toh">
+      <div class="sender-name">Yan Hong Toh</div>
+      <div class="message-text">Oh ya true lol</div>
+      <div class="meta">4:40 pm</div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">*Thoughts? @here*<br><br>The idea was to say that Shu's parents were busy till 4pm for the surprise, but I feel like she will wanna tell them first heh. Can either push till 3:30 our time (plan was to say they've got something with sparkles or her dad flying back in so not free till 1530?)</div>
+      <div class="meta">4:40 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">Cause I think if I do their surprise first she won't wanna be on phone with everyone after</div>
+      <div class="meta">4:41 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">which could work too</div>
+      <div class="meta">4:41 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">dasjk lhasklhd ksahd</div>
+      <div class="meta">4:41 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">idk</div>
+      <div class="meta">4:41 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">Also for ease and to make sure she don't see nothing - can y'all lock this chat?</div>
+      <div class="meta">4:42 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message incoming" data-sender="Carina (Aruba) Lai">
+      <div class="sender-name">Carina (Aruba) Lai</div>
+      <div class="message-text">there’s a lot going on <br>i reply later tn after work!! i’ll review the presentation and comment too!!</div>
+      <div class="meta">4:43 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Carina (Aruba) Lai">
+      <div class="sender-name">Carina (Aruba) Lai</div>
+      <div class="message-text">it’s auto locked - the way you created this group chat <br>i can’t see this group unless i swipe down and use face ID/type password</div>
+      <div class="meta">4:43 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Carina (Aruba) Lai">
+      <div class="sender-name">Carina (Aruba) Lai</div>
+      <div class="message-text">hmm an idea <br>when is Olivia Dean’s concert?</div>
+      <div class="meta">4:52 pm</div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">oct 5th!</div>
+      <div class="meta">4:58 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message incoming" data-sender="Carina (Aruba) Lai">
+      <div class="sender-name">Carina (Aruba) Lai</div>
+      <div class="message-text">AH<br>I am getting my nails done next week so I can start the conversation <br>then maybe sheen can go like omg let’s get our nails tgt again <br>then we do this <br>i will need to redo my nails after I come back from France for KO rave which is on Oct 3!!</div>
+      <div class="meta">5:14 pm</div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">omg yes please hehhehe</div>
+      <div class="meta">5:17 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">no need to hard push hahha</div>
+      <div class="meta">5:17 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">but yes please</div>
+      <div class="meta">5:17 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">Like</div>
+      <div class="meta">5:17 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">I think if she doesn't go for it and it just ends up stick ons (lol) would be fking hillarious</div>
+      <div class="meta">5:17 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">ode to her stubbornness</div>
+      <div class="meta">5:17 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message incoming" data-sender="Carina (Aruba) Lai">
+      <div class="sender-name">Carina (Aruba) Lai</div>
+      <div class="message-text">ok a good plan <br>i was actually gonna send nail inspo once my dress arrived for recommendation to match</div>
+      <div class="meta">5:18 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Carina (Aruba) Lai">
+      <div class="sender-name">Carina (Aruba) Lai</div>
+      <div class="message-text">but this is a good backup!</div>
+      <div class="meta">5:18 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Khandhan Nadarajan">
+      <div class="sender-name">Khandhan Nadarajan</div>
+      <div class="message-text">HSYXHSHDHSP</div>
+      <div class="meta">6:28 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Khandhan Nadarajan">
+      <div class="sender-name">Khandhan Nadarajan</div>
+      <div class="message-text">I also see that happening shdhsjsj</div>
+      <div class="meta">6:28 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Khandhan Nadarajan">
+      <div class="sender-name">Khandhan Nadarajan</div>
+      <div class="message-text">But ya good backup</div>
+      <div class="meta">6:28 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Yan Sheen Toh">
+      <div class="sender-name">Yan Sheen Toh</div>
+      <div class="message-text">ITS SO GOOD JOSHUA 😭</div>
+      <div class="meta">6:34 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Leo (Yi Jung) Lee">
+      <div class="sender-name">Leo (Yi Jung) Lee</div>
+      <div class="message-text">Hey guys late to the chat! Just caught up 😅</div>
+      <div class="meta">6:36 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Yan Sheen Toh">
+      <div class="sender-name">Yan Sheen Toh</div>
+      <div class="message-text">YES i can say like since yall are all going away we won’t boulder so i can do my nails 😌 and i have a friend here that owns a nail store</div>
+      <div class="meta">6:37 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Aisyah Atiqah">
+      <div class="sender-name">Aisyah Atiqah</div>
+      <div class="message-text">Oh this is the nail salon she has the gift card for<br><br><a href="https://www.instagram.com/luxie.beautybar_?igsh=MWQ1emgxbHVhZG0wNw==" target="_blank">https://www.instagram.com/luxie.beautybar_?igsh=MWQ1emgxbHVhZG0wNw==</a></div>
+      <div class="meta">6:39 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Yan Sheen Toh">
+      <div class="sender-name">Yan Sheen Toh</div>
+      <div class="message-text">OH OOP okay so cannot do tgt but instead instil in her head that should do her nails for fun since we aren’t gonna boulder as much anymore?</div>
+      <div class="meta">6:43 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Carina (Aruba) Lai">
+      <div class="sender-name">Carina (Aruba) Lai</div>
+      <div class="message-text">that’s gonna be a bit obvious tho</div>
+      <div class="meta">6:53 pm</div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">Yeah the nails are hardest</div>
+      <div class="meta">9:41 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">Idk how to convince her not to do before Sep</div>
+      <div class="meta">9:41 pm <span class="ticks">✓✓</span></div>
+    </div>
 
-    function scrollToBottom() {
-      const container = document.getElementById('chatContainer');
-      container.scrollTo({ top: container.scrollHeight, behavior: 'smooth' });
-    }
+    <!-- 18 AUGUST 2026 -->
+    <div class="date-divider"><span>18 August 2026</span></div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">Friends</div>
+      <div class="meta">10:23 am <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">Emily (Shu cousin) also gonna join</div>
+      <div class="meta">10:23 am <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">we gonna be</div>
+      <div class="meta">10:23 am <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">squeezy</div>
+      <div class="meta">10:23 am <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message incoming" data-sender="Carina (Aruba) Lai">
+      <div class="sender-name">Carina (Aruba) Lai</div>
+      <div class="message-text">is that the Ying Han person in the docs</div>
+      <div class="meta">10:33 am</div>
+    </div>
+    <div class="message incoming" data-sender="Carina (Aruba) Lai">
+      <div class="sender-name">Carina (Aruba) Lai</div>
+      <div class="message-text">i was wondering who that is</div>
+      <div class="meta">10:34 am</div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">Ying Han is cousin 1 hahah</div>
+      <div class="meta">11:26 am <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">Emily cousin 2 😀</div>
+      <div class="meta">11:26 am <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message incoming" data-sender="Carina (Aruba) Lai">
+      <div class="sender-name">Carina (Aruba) Lai</div>
+      <div class="message-text">cute <br>big sleepover ❤️</div>
+      <div class="meta">11:48 am</div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">@ Melbs people cause Emily coming I got you same car back</div>
+      <div class="meta">12:39 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">@ Melbs Emily will come up in the car w/ you but not return!</div>
+      <div class="meta">12:49 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message incoming" data-sender="Carina (Aruba) Lai">
+      <div class="sender-name">Carina (Aruba) Lai</div>
+      <div class="message-text">thank u <br>let us know how much is everything after</div>
+      <div class="meta">12:49 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Khandhan Nadarajan">
+      <div class="sender-name">Khandhan Nadarajan</div>
+      <div class="message-text">Yeah all good!</div>
+      <div class="meta">6:07 pm</div>
+    </div>
 
-    function toggleAutoPlay() {
-      if (isPlaying) {
-        pauseAutoPlay();
-      } else {
-        startAutoPlay();
-      }
-    }
+    <!-- 25 AUGUST 2026 -->
+    <div class="date-divider"><span>25 August 2026</span></div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">Okay friends</div>
+      <div class="meta">8:02 am <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">Have managed to distract shubee from nails</div>
+      <div class="meta">8:02 am <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">But this is our last weekend and she said maybe after lunch with her sg friend she go on Sunday</div>
+      <div class="meta">8:03 am <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">Who is free Sunday to offer some plans 😅</div>
+      <div class="meta">8:03 am <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message incoming" data-sender="Khandhan Nadarajan">
+      <div class="sender-name">Khandhan Nadarajan</div>
+      <div class="message-text">Omg I can’t this Sunday :(</div>
+      <div class="meta">9:35 am</div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">Okay no stress</div>
+      <div class="meta">9:51 am <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">@Yikee were we not meant to meet you some point this week? How does Sunday sound 😅</div>
+      <div class="meta">9:51 am <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message incoming" data-sender="Yikee">
+      <div class="sender-name">Yikee</div>
+      <div class="message-text">i not free on sunday 😭 sorry</div>
+      <div class="meta">9:52 am</div>
+    </div>
+    <div class="message incoming" data-sender="Yikee">
+      <div class="sender-name">Yikee</div>
+      <div class="message-text">‎This message was deleted.</div>
+      <div class="meta">9:52 am</div>
+    </div>
+    <div class="message incoming" data-sender="Aisyah Atiqah">
+      <div class="sender-name">Aisyah Atiqah</div>
+      <div class="message-text">Joshie i can message them and tell them to tell her theres no slot</div>
+      <div class="meta">10:14 am</div>
+    </div>
 
-    function startAutoPlay() {
-      if (currentDisplayedIndex >= fullChatHistory.length - 1) {
-        currentDisplayedIndex = 0;
-        document.getElementById('messagesList').innerHTML = '';
-      }
-      isPlaying = true;
-      document.getElementById('playIcon').className = 'fa-solid fa-pause text-xs';
-      document.getElementById('playStatus').innerText = 'Playing...';
-      playNextMessage();
-    }
+    <!-- 29 AUGUST 2026 -->
+    <div class="date-divider"><span>29 August 2026</span></div>
+    <div class="message incoming" data-sender="Yikee">
+      <div class="sender-name">Yikee</div>
+      <div class="message-text">joshy my sunday plans got cancelled do u still need someone to offer plans</div>
+      <div class="meta">9:14 am</div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">All Gucci I think</div>
+      <div class="meta">10:25 am <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">She’s now talking about doing it throughout the week lol</div>
+      <div class="meta">10:25 am <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">Perhaps this is the play</div>
+      <div class="meta">10:25 am <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">@Yan Sheen Toh @Yan Hong Toh do y’all think you can come up with an excuse to want our mahjong table that weekend?</div>
+      <div class="meta">10:29 am <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">There aren’t enough table/chairs for so many of us lol</div>
+      <div class="meta">10:29 am <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">So either I get the Mahjong table to you guys before that weekend or I’ll just order/Rent a table for you guys to bring up</div>
+      <div class="meta">10:30 am <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">Or @Yikee</div>
+      <div class="meta">10:40 am <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message incoming" data-sender="Yan Sheen Toh">
+      <div class="sender-name">Yan Sheen Toh</div>
+      <div class="message-text">i have a foldable table at hong’s place!!</div>
+      <div class="meta">10:45 am</div>
+    </div>
+    <div class="message incoming" data-sender="Yan Sheen Toh">
+      <div class="sender-name">Yan Sheen Toh</div>
+      <div class="message-text">like a long one so we are all good 🙂‍↕️</div>
+      <div class="meta">10:45 am</div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">ooo</div>
+      <div class="meta">3:33 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">fantabulous ❤️</div>
+      <div class="meta">3:33 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">do you know where its from? Wanna get an idea of dimensions ~</div>
+      <div class="meta">3:33 pm <span class="ticks">✓✓</span></div>
+    </div>
 
-    function pauseAutoPlay() {
-      isPlaying = false;
-      clearTimeout(autoPlayTimer);
-      hideTyping();
-      document.getElementById('playIcon').className = 'fa-solid fa-play ml-0.5 text-xs';
-      document.getElementById('playStatus').innerText = 'Paused';
-    }
+    <!-- 30 AUGUST 2026 -->
+    <div class="date-divider"><span>30 August 2026</span></div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">OK, friends nails definitely won’t be today which is good but now she’s talking about getting it done after work during the week</div>
+      <div class="meta">11:36 am <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">@Yan Sheen Toh @Khandhan Nadarajan</div>
+      <div class="meta">11:36 am <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">I’ll ask when we’re climbing again this week in our chat, but can we push it to Thursday or Friday if you guys can?</div>
+      <div class="meta">11:37 am <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">Then she won’t wanna do nails and chip em</div>
+      <div class="meta">11:44 am <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message incoming" data-sender="Khandhan Nadarajan">
+      <div class="sender-name">Khandhan Nadarajan</div>
+      <div class="message-text">Can !</div>
+      <div class="meta">11:50 am</div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">@Yan Sheen Toh I ask when you awake :P</div>
+      <div class="meta">12:02 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message incoming" data-sender="Yan Sheen Toh">
+      <div class="sender-name">Yan Sheen Toh</div>
+      <div class="message-text">can 😌</div>
+      <div class="meta">1:44 pm</div>
+    </div>
 
-    function playNextMessage() {
-      if (!isPlaying) return;
+    <!-- 31 AUGUST 2026 -->
+    <div class="date-divider"><span>31 August 2026</span></div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">@Yan Sheen Toh do you know rough table dimensions?</div>
+      <div class="meta">10:56 am <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">Or @Yan Hong Toh as it’s at yours lol</div>
+      <div class="meta">10:56 am <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message incoming" data-sender="Yan Hong Toh">
+      <div class="sender-name">Yan Hong Toh</div>
+      <div class="message-text">Err I can try to measure later</div>
+      <div class="meta">11:05 am</div>
+    </div>
+    <div class="message incoming" data-sender="Yan Hong Toh">
+      <div class="sender-name">Yan Hong Toh</div>
+      <div class="message-text">I take pic</div>
+      <div class="meta">11:05 am</div>
+    </div>
+    <div class="message incoming" data-sender="Yan Sheen Toh">
+      <div class="sender-name">Yan Sheen Toh</div>
+      <div class="message-text">if not i can try find item online for the dimensions</div>
+      <div class="meta">12:20 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Yan Sheen Toh">
+      <div class="sender-name">Yan Sheen Toh</div>
+      <div class="message-text">hong if u can just take pic of the brand i can search it up</div>
+      <div class="meta">12:20 pm</div>
+    </div>
 
-      if (currentDisplayedIndex >= fullChatHistory.length - 1) {
-        pauseAutoPlay();
-        document.getElementById('playStatus').innerText = 'Completed 🎉';
-        return;
-      }
+    <!-- 2 SEPTEMBER 2026 -->
+    <div class="date-divider"><span>2 September 2026</span></div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">Adding Shu's fam now!</div>
+      <div class="meta">1:18 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message system">Oct 10 added Auntie Michelle Neo, Emily Nichols and 2 others</div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">Hey Everyone ~ Have just added in @Uncle Yong Wah Ling (Uncle Yong Wah), @Auntie Michelle Neo (Auntie Michelle), @Ying Han Tio (Ying Han) and @Emily Nichols (Emily)</div>
+      <div class="meta">1:21 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message incoming" data-sender="Emily Nichols">
+      <div class="sender-name">Emily Nichols</div>
+      <div class="message-text">Omg 10:10 🌝🌚</div>
+      <div class="meta">1:21 pm</div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">*Important:*<br>This is essentially the finalised doc for everyone's reference. There are a few tweaks to be made but all necessary info will be here!<br><br><a href="https://docs.google.com/presentation/d/1f2Dz5icF7Azdli9gSTEpUlUbMyOXkObsHkLfvlpkygQ/edit?usp=sharing" target="_blank">https://docs.google.com/presentation/d/1f2Dz5icF7Azdli9gSTEpUlUbMyOXkObsHkLfvlpkygQ/edit?usp=sharing</a></div>
+      <div class="meta">1:23 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message system">Joshua Margaillan pinned a message</div>
+    <div class="message incoming" data-sender="Khandhan Nadarajan">
+      <div class="sender-name">Khandhan Nadarajan</div>
+      <div class="message-text"><div class="media-placeholder">📷 [Attached Sticker: 00000420-STICKER-2026-09-02-13-24-45.webp]</div></div>
+      <div class="meta">1:24 pm</div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">Please have a read through ~ and add on slide 23 if there's anything y'all want!</div>
+      <div class="meta">1:25 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">While Shu and I are in Europe I will unlikely be replying much here - will be hard to hide</div>
+      <div class="meta">1:25 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">@ Melbourne People (including Em) please make note of the change in timings re: car etc.<br><br>Despite Balgownie confirming timings in JULY, a couple of days ago they remembered they had an event so proposal shifted earlier a bit. New timing gets you guys to the Retreat before any calls~</div>
+      <div class="meta">1:31 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message incoming" data-sender="Auntie Michelle Neo">
+      <div class="sender-name">Auntie Michelle Neo</div>
+      <div class="message-text">I will do best not to !@#£ up 😬</div>
+      <div class="meta">1:40 pm</div>
+    </div>
+    <div class="message outgoing" data-sender="Joshua Margaillan">
+      <div class="sender-name">Joshua Margaillan</div>
+      <div class="message-text">No more Airbnb Convos 😉</div>
+      <div class="meta">3:03 pm <span class="ticks">✓✓</span></div>
+    </div>
+    <div class="message incoming" data-sender="Ying Han Tio">
+      <div class="sender-name">Ying Han Tio</div>
+      <div class="message-text">hellaurr</div>
+      <div class="meta">3:57 pm</div>
+    </div>
+    <div class="message incoming" data-sender="Ying Han Tio">
+      <div class="sender-name">Ying Han Tio</div>
+      <div class="message-text">ok aligned!!</div>
+      <div class="meta">3:57 pm</div>
+    </div>
 
-      const nextMsg = fullChatHistory[currentDisplayedIndex + 1];
-
-      // Show typing indicator if message has sender
-      if (!nextMsg.isDateDivider && nextMsg.sender) {
-        showTyping(participants[nextMsg.sender]?.name || "Someone");
-      }
-
-      const delay = (nextMsg.text ? Math.max(1200, nextMsg.text.length * 40) : 1800) / playSpeed;
-
-      autoPlayTimer = setTimeout(() => {
-        hideTyping();
-        currentDisplayedIndex++;
-        const list = document.getElementById('messagesList');
-        list.innerHTML += createMessageMarkup(fullChatHistory[currentDisplayedIndex]);
-        playPopSFX();
-        scrollToBottom();
-
-        // Loop next message
-        autoPlayTimer = setTimeout(() => {
-          playNextMessage();
-        }, 800 / playSpeed);
-
-      }, delay);
-    }
-
-    function showTyping(name) {
-      const indicator = document.getElementById('typingIndicator');
-      const userSpan = document.getElementById('typingUser');
-      userSpan.innerText = name;
-      userSpan.classList.remove('hidden');
-      indicator.classList.remove('hidden');
-      scrollToBottom();
-    }
-
-    function hideTyping() {
-      document.getElementById('typingIndicator').classList.add('hidden');
-    }
-
-    function cycleSpeed() {
-      if (playSpeed === 1.0) playSpeed = 2.0;
-      else if (playSpeed === 2.0) playSpeed = 4.0;
-      else playSpeed = 1.0;
-
-      document.getElementById('speedBtn').innerText = playSpeed.toFixed(1) + 'x';
-    }
-
-    function resetChat() {
-      pauseAutoPlay();
-      renderAllMessagesUntil(3);
-      document.getElementById('playStatus').innerText = 'Ready';
-    }
-
-    function toggleSound() {
-      soundEnabled = !soundEnabled;
-      const btn = document.getElementById('soundBtn');
-      btn.className = soundEnabled ? 'p-2 hover:bg-[#2a3942] rounded-full transition text-emerald-400' : 'p-2 hover:bg-[#2a3942] rounded-full transition text-slate-500';
-    }
-
-    function toggleAspect() {
-      const frame = document.getElementById('appFrame');
-      frame.classList.toggle('max-w-2xl');
-      frame.classList.toggle('max-w-sm');
-    }
-
-    function openLightbox(url, caption) {
-      document.getElementById('lightboxImg').src = url;
-      document.getElementById('lightboxCaption').innerText = caption;
-      document.getElementById('lightbox').classList.remove('hidden');
-    }
-
-    function closeLightbox() {
-      document.getElementById('lightbox').classList.add('hidden');
-    }
-
-    function toggleInfoModal() {
-      document.getElementById('infoModal').classList.toggle('hidden');
-    }
-
-    function toggleSearch() {
-      const bar = document.getElementById('searchBar');
-      bar.classList.toggle('hidden');
-      if (!bar.classList.contains('hidden')) {
-        document.getElementById('searchInput').focus();
-      } else {
-        renderAllMessagesUntil(currentDisplayedIndex);
-      }
-    }
-
-    function filterMessages() {
-      const query = document.getElementById('searchInput').value.toLowerCase();
-      if (!query) {
-        renderAllMessagesUntil(currentDisplayedIndex);
-        return;
-      }
-      const filtered = fullChatHistory.filter(m => m.text && m.text.toLowerCase().includes(query));
-      const list = document.getElementById('messagesList');
-      list.innerHTML = '';
-      filtered.forEach(m => {
-        list.innerHTML += createMessageMarkup(m);
-      });
-    }
-
-    function sendManualMessage() {
-      const input = document.getElementById('manualMsgInput');
-      const val = input.value.trim();
-      if (!val) return;
-
-      const newMsg = {
-        id: Date.now(),
-        sender: "Stephen (Groom)",
-        text: val,
-        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-      };
-
-      fullChatHistory.push(newMsg);
-      currentDisplayedIndex = fullChatHistory.length - 1;
-      const list = document.getElementById('messagesList');
-      list.innerHTML += createMessageMarkup(newMsg);
-      playPopSFX();
-      scrollToBottom();
-      input.value = '';
-    }
-
-    function openAddMessageModal() {
-      document.getElementById('addMsgModal').classList.remove('hidden');
-    }
-
-    function closeAddMessageModal() {
-      document.getElementById('addMsgModal').classList.add('hidden');
-    }
-
-    function submitCustomMessage() {
-      const sender = document.getElementById('modalSender').value;
-      const text = document.getElementById('modalText').value.trim();
-      if (!text) return;
-
-      const newMsg = {
-        id: Date.now(),
-        sender: sender,
-        text: text,
-        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-      };
-
-      fullChatHistory.push(newMsg);
-      currentDisplayedIndex = fullChatHistory.length - 1;
-      const list = document.getElementById('messagesList');
-      list.innerHTML += createMessageMarkup(newMsg);
-      playPopSFX();
-      scrollToBottom();
-      closeAddMessageModal();
-      document.getElementById('modalText').value = '';
-    }
-
-    function openAddMediaModal() {
-      document.getElementById('addMediaModal').classList.remove('hidden');
-    }
-
-    function closeAddMediaModal() {
-      document.getElementById('addMediaModal').classList.add('hidden');
-    }
-
-    function submitCustomMedia() {
-      const sender = document.getElementById('mediaSender').value;
-      const url = document.getElementById('mediaUrl').value.trim() || "https://images.unsplash.com/photo-1515934751635-c81c6bc9a2d8?auto=format&fit=crop&w=800&q=80";
-      const caption = document.getElementById('mediaCaption').value.trim();
-
-      const newMsg = {
-        id: Date.now(),
-        sender: sender,
-        type: "image",
-        mediaUrl: url,
-        caption: caption,
-        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-      };
-
-      fullChatHistory.push(newMsg);
-      currentDisplayedIndex = fullChatHistory.length - 1;
-      const list = document.getElementById('messagesList');
-      list.innerHTML += createMessageMarkup(newMsg);
-      playPopSFX();
-      scrollToBottom();
-      closeAddMediaModal();
-    }
-
-    function playVoiceNote(btn) {
-      playPopSFX();
-      btn.innerHTML = '<i class="fa-solid fa-pause text-xs"></i>';
-      setTimeout(() => {
-        btn.innerHTML = '<i class="fa-solid fa-play text-xs ml-0.5"></i>';
-      }, 3000);
-    }
-  </script>
-</body>
-</html>
+    <!-- 9 SEPTEMBER 2026 -->
+    <div class="date-divider"><span>9 September 2026</span></div>
+    <div class="message incoming" data-sender="Aisyah Atiqah">
+      <div class="sender-name">Aisyah Atiqah</div>
+      <div class="message-text">Hey @Yan Hong Toh could i check what colour is the table?</div>
+      <div class="meta">12:35 am</div>
+    </div>
+    <div class="message incoming" data-sender="Yan Hong Toh">
+      <div class="sender-name">Yan Hong Toh</div>
+      <div class="message-text">Yess it'
