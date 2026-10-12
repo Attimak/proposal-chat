@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-slate-950">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Proposal Mission 💍 WhatsApp Chat Story</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;500;600;700&display=swap');
+    
+    body {
+      font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif;
+      user-select: none;
+    }
+
+    /* Official WhatsApp Pattern Style Background */
+    .chat-bg {
+      background-color: #0b141a;
+      background-image: radial-gradient(#1f2c34 1px, transparent 1px);
+      background-size: 20px 20px;
+    }
+
+    .bubble-in {
+      background-color: #202c33;
+      color: #e9edef;
+      border-top-left-radius: 0px;
+    }
+
+    .bubble-out {
+      background-color: #005c4b;
+      color: #e9edef;
+      border-top-right-radius: 0px;
+    }
+
+    /* Custom scrollbar for authentic chat feel */
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.16);
+      border-radius: 3px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
+
+    /* Message pop-in animation */
+    @keyframes messagePop {
+      0% { opacity: 0; transform: translateY(12px) scale(0.97); }
+      100% { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .animate-pop {
+      animation: messagePop 0.25s cubic-bezier(0.1, 0.9, 0.2, 1) forwards;
+    }
+
+    /* Pulse animation for record light */
+    @keyframes redPulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+    .pulse-dot {
+      animation: redPulse 1.2s infinite;
+    }
+  </style>
+</head>
+<body class="h-full flex items-center justify-center p-0 sm:p-4 md:p-6 overflow-hidden text-slate-100">
+
+  <!-- App Frame Wrapper -->
+  <div id="appFrame" class="w-full h-full max-w-2xl bg-[#111b21] flex flex-col shadow-2xl rounded-none sm:rounded-2xl border 0 sm:border border-slate-800 overflow-hidden relative transition-all duration-300">
+
+    <!-- Top Navigation / Group Header -->
+    <header class="bg-[#202c33] px-3 py-2.5 flex items-center justify-between z-20 border-b border-[#222d34]">
+      <div class="flex items-center gap-3 cursor-pointer" onclick="toggleInfoModal()">
+        <button class="text-slate-400 hover:text-slate-200 transition sm:hidden">
+          <i class="fa-solid fa-arrow-left text-lg"></i>
+        </button>
+        <!-- Group Avatar Stack -->
+        <div class="relative w-10 h-10 rounded-full bg-emerald-700 flex items-center justify-center overflow-hidden flex-shrink-0 border border-emerald-600">
+          <i class="fa-solid fa-ring text-yellow-300 text-lg"></i>
+        </div>
+        <div class="flex flex-col overflow-hidden">
+          <h1 class="font-semibold text-slate-100 text-base leading-tight truncate flex items-center gap-1.5">
+            Proposal Mission 💍
+            <span class="text-xs bg-emerald-900/60 text-emerald-400 px-1.5 py-0.5 rounded font-normal border border-emerald-700/50">Confidential</span>
+          </h1>
+          <p id="headerSubtitle" class="text-xs text-slate-400 truncate">
+            Stephen, Betsy, Laura, Marcus, Haley's Mom...
+          </p>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="flex items-center gap-2 text-slate-400">
+        <button onclick="toggleSearch()" class="p-2 hover:bg-[#2a3942] rounded-full transition" title="Search messages">
+          <i class="fa-solid fa-magnifying-glass text-slate-300"></i>
+        </button>
+        <button onclick="toggleSound()" id="soundBtn" class="p-2 hover:bg-[#2a3942] rounded-full transition text-emerald-400" title="Toggle audio SFX">
+          <i class="fa-solid fa-volume-high"></i>
+        </button>
+        <button onclick="toggleAspect()" class="p-2 hover:bg-[#2a3942] rounded-full transition text-slate-300" title="Toggle 9:16 Aspect Ratio">
+          <i class="fa-solid fa-mobile-screen-button"></i>
+        </button>
+        <button onclick="openAddMessageModal()" class="p-2 hover:bg-[#2a3942] rounded-full transition text-slate-300" title="Add custom message">
+          <i class="fa-solid fa-plus"></i>
+        </button>
+      </div>
+    </header>
+
+    <!-- Interactive Filter Search Bar (Hidden by Default) -->
+    <div id="searchBar" class="bg-[#111b21] border-b border-[#222d34] px-3 py-2 hidden flex items-center gap-2 z-10 animate-pop">
+      <i class="fa-solid fa-search text-slate-500 ml-2"></i>
+      <input type="text" id="searchInput" oninput="filterMessages()" placeholder="Search chat history..." class="w-full bg-[#202c33] text-slate-200 placeholder-slate-500 text-sm rounded-lg px-3 py-1.5 focus:outline-none border border-transparent focus:border-emerald-500">
+      <button onclick="toggleSearch()" class="text-slate-400 text-xs hover:text-white px-2">Cancel</button>
+    </div>
+
+    <!-- Floating Playback Overlay Controller -->
+    <div class="absolute top-16 left-1/2 -translate-x-1/2 z-30 bg-[#202c33]/90 backdrop-blur-md px-4 py-2 rounded-full border border-slate-700/60 shadow-xl flex items-center gap-3">
+      <button id="playPauseBtn" onclick="toggleAutoPlay()" class="w-8 h-8 rounded-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold flex items-center justify-center transition shadow-lg">
+        <i id="playIcon" class="fa-solid fa-play ml-0.5 text-xs"></i>
+      </button>
+      <div class="flex flex-col">
+        <span class="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Auto-Story Play</span>
+        <span id="playStatus" class="text-xs text-slate-200 font-medium">Ready</span>
+      </div>
+      <div class="h-5 w-[1px] bg-slate-700 mx-1"></div>
+      <button onclick="cycleSpeed()" id="speedBtn" class="text-xs bg-[#111b21] hover:bg-[#2a3942] text-emerald-400 px-2.5 py-1 rounded-full border border-emerald-800 font-mono">
+        1.0x
+      </button>
+      <button onclick="resetChat()" class="text-slate-400 hover:text-white p-1" title="Reset to start">
+        <i class="fa-solid fa-rotate-left text-xs"></i>
+      </button>
+    </div>
+
+    <!-- Chat Scroll Container -->
+    <div id="chatContainer" class="flex-1 chat-bg overflow-y-auto px-3 sm:px-4 py-16 space-y-3 relative">
+      <!-- Encryption Badge -->
+      <div class="flex justify-center my-2">
+        <div class="bg-[#182229] border border-yellow-800/40 text-yellow-500/90 text-[11px] px-3 py-1.5 rounded-lg text-center max-w-xs shadow-sm flex items-center gap-2">
+          <i class="fa-solid fa-lock text-[10px]"></i>
+          <span>Messages are end-to-end encrypted. No one outside of this chat can read or listen.</span>
+        </div>
+      </div>
+
+      <!-- Messages Stream Render Target -->
+      <div id="messagesList" class="space-y-3"></div>
+
+      <!-- Typing Indicator (Simulated) -->
+      <div id="typingIndicator" class="hidden flex items-center gap-2 max-w-[120px] bg-[#202c33] rounded-2xl rounded-tl-none px-3 py-2 border border-slate-700/30">
+        <span id="typingUser" class="text-xs text-emerald-400 font-medium hidden"></span>
+        <div class="flex items-center gap-1">
+          <div class="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce"></div>
+          <div class="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce [animation-delay:0.2s]"></div>
+          <div class="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce [animation-delay:0.4s]"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Chat Input Footer -->
+    <footer class="bg-[#202c33] px-3 py-2 flex items-center gap-2 border-t border-[#222d34] z-20">
+      <button class="text-slate-400 hover:text-slate-200 p-2">
+        <i class="fa-regular fa-face-smile text-xl"></i>
+      </button>
+      <button onclick="openAddMediaModal()" class="text-slate-400 hover:text-slate-200 p-2" title="Attach picture">
+        <i class="fa-solid fa-paperclip text-lg"></i>
+      </button>
+      <div class="flex-1 bg-[#2a3942] rounded-lg px-4 py-2 flex items-center">
+        <input type="text" id="manualMsgInput" placeholder="Type a message into group..." class="w-full bg-transparent text-sm text-slate-100 placeholder-slate-400 focus:outline-none" onkeypress="if(event.key==='Enter') sendManualMessage()">
+      </div>
+      <button onclick="sendManualMessage()" class="w-9 h-9 rounded-full bg-emerald-600 hover:bg-emerald-500 text-slate-950 font-bold flex items-center justify-center transition flex-shrink-0">
+        <i class="fa-solid fa-paper-plane text-xs text-white ml-0.5"></i>
+      </button>
+    </footer>
+
+  </div>
+
+  <!-- Image Lightbox Modal -->
+  <div id="lightbox" class="fixed inset-0 z-50 bg-black/95 hidden flex flex-col items-center justify-center p-4" onclick="closeLightbox()">
+    <button class="absolute top-4 right-4 text-slate-400 hover:text-white text-2xl p-2">
+      <i class="fa-solid fa-xmark"></i>
+    </button>
+    <img id="lightboxImg" src="" alt="Full preview" class="max-w-full max-h-[85vh] rounded-lg object-contain shadow-2xl">
+    <p id="lightboxCaption" class="text-slate-300 text-sm mt-3 text-center max-w-md font-medium"></p>
+  </div>
+
+  <!-- Group Info Modal -->
+  <div id="infoModal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm hidden flex items-center justify-center p-4" onclick="toggleInfoModal()">
+    <div class="bg-[#202c33] rounded-2xl max-w-sm w-full p-5 border border-slate-700 shadow-2xl" onclick="event.stopPropagation()">
+      <div class="flex flex-col items-center text-center pb-4 border-b border-slate-700">
+        <div class="w-20 h-20 rounded-full bg-emerald-700 flex items-center justify-center border-2 border-emerald-500 mb-3 shadow-lg">
+          <i class="fa-solid fa-ring text-yellow-300 text-3xl"></i>
+        </div>
+        <h3 class="text-lg font-bold text-slate-100">Proposal Mission 💍</h3>
+        <p class="text-xs text-slate-400 mt-0.5">Group · 6 Participants</p>
+      </div>
+      <div class="py-4 space-y-3">
+        <h4 class="text-xs font-semibold text-emerald-400 uppercase tracking-wider">Participants</h4>
+        <div id="participantList" class="space-y-2 max-h-48 overflow-y-auto"></div>
+      </div>
+      <button onclick="toggleInfoModal()" class="w-full py-2 bg-[#2a3942] hover:bg-slate-700 text-slate-200 text-sm rounded-lg transition font-medium">Close</button>
+    </div>
+  </div>
+
+  <!-- Add Custom Message Modal -->
+  <div id="addMsgModal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-[#202c33] rounded-2xl max-w-md w-full p-5 border border-slate-700 shadow-2xl space-y-4">
+      <h3 class="text-lg font-bold text-slate-100 flex items-center gap-2">
+        <i class="fa-solid fa-message text-emerald-400"></i> Add Chat Message
+      </h3>
+      <div>
+        <label class="text-xs text-slate-400 block mb-1">Sender</label>
+        <select id="modalSender" class="w-full bg-[#111b21] text-slate-200 border border-slate-700 rounded-lg p-2 text-sm">
+          <option value="Stephen (Groom)">Stephen (You)</option>
+          <option value="Betsy (Best Friend)">Betsy (Best Friend)</option>
+          <option value="Laura (Sister)">Laura (Sister)</option>
+          <option value="Marcus (Best Man)">Marcus (Best Man)</option>
+          <option value="Haley's Mom">Haley's Mom</option>
+        </select>
+      </div>
+      <div>
+        <label class="text-xs text-slate-400 block mb-1">Message Content</label>
+        <textarea id="modalText" rows="3" class="w-full bg-[#111b21] text-slate-200 border border-slate-700 rounded-lg p-2 text-sm focus:outline-none focus:border-emerald-500" placeholder="Type message..."></textarea>
+      </div>
+      <div class="flex justify-end gap-2">
+        <button onclick="closeAddMessageModal()" class="px-4 py-2 bg-[#2a3942] text-slate-300 text-sm rounded-lg">Cancel</button>
+        <button onclick="submitCustomMessage()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-sm rounded-lg font-semibold">Insert Message</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Attach Media Modal -->
+  <div id="addMediaModal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-[#202c33] rounded-2xl max-w-md w-full p-5 border border-slate-700 shadow-2xl space-y-4">
+      <h3 class="text-lg font-bold text-slate-100 flex items-center gap-2">
+        <i class="fa-solid fa-image text-emerald-400"></i> Attach Photo or Map
+      </h3>
+      <div>
+        <label class="text-xs text-slate-400 block mb-1">Sender</label>
+        <select id="mediaSender" class="w-full bg-[#111b21] text-slate-200 border border-slate-700 rounded-lg p-2 text-sm">
+          <option value="Stephen (Groom)">Stephen (You)</option>
+          <option value="Betsy (Best Friend)">Betsy (Best Friend)</option>
+          <option value="Laura (Sister)">Laura (Sister)</option>
+        </select>
+      </div>
+      <div>
+        <label class="text-xs text-slate-400 block mb-1">Image URL</label>
+        <input type="text" id="mediaUrl" class="w-full bg-[#111b21] text-slate-200 border border-slate-700 rounded-lg p-2 text-sm focus:outline-none" placeholder="https://images.unsplash.com/...">
+      </div>
+      <div>
+        <label class="text-xs text-slate-400 block mb-1">Caption</label>
+        <input type="text" id="mediaCaption" class="w-full bg-[#111b21] text-slate-200 border border-slate-700 rounded-lg p-2 text-sm focus:outline-none" placeholder="Add a caption...">
+      </div>
+      <div class="flex justify-end gap-2">
+        <button onclick="closeAddMediaModal()" class="px-4 py-2 bg-[#2a3942] text-slate-300 text-sm rounded-lg">Cancel</button>
+        <button onclick="submitCustomMedia()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-sm rounded-lg font-semibold">Post Media</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Participant Data & Avatars
+    const participants = {
+      "Stephen (Groom)": { name: "Stephen", color: "text-emerald-400", isMe: true, role: "Organiser / Groom" },
+      "Betsy (Best Friend)": { name: "Betsy", color: "text-pink-400", isMe: false, avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80", role: "Maid of Honor in Spirit" },
+      "Laura (Sister)": { name: "Laura", color: "text-purple-400", isMe: false, avatar: "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=120&q=80", role: "Sister & Photographer" },
+      "Marcus (Best Man)": { name: "Marcus", color: "text-amber-400", isMe: false, avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=120&q=80", role: "Distractor & Logistics" },
+      "Haley's Mom": { name: "Mom (Sarah)", color: "text-cyan-400", isMe: false, avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=120&q=80", role: "Ring Keeper" }
+    };
+
+    // Proposal Chat Master Dataset
+    const fullChatHistory = [
+      { id: 1, sender: "Stephen (Groom)", text: "Okay guys... operational code name: OPERATION FOREVER 🤫. I'm proposing to Haley in 3 weeks!", time: "10:14 AM", date: "MAY 12" },
+      { id: 2, sender: "Betsy (Best Friend)", text: "FINALLY!!!!! 🎉😭 I thought I was gonna burst keeping this secret!", time: "10:15 AM", reactions: ["❤️", "🎉"] },
+      { id: 3, sender: "Marcus (Best Man)", text: "My guy! Let's go! What's the plan? Have you got the ring yet??", time: "10:15 AM" },
+      { id: 4, sender: "Haley's Mom", text: "I have had the ring safe in my closet safe for 2 months! Stephen picked an absolute stunner 💍✨", time: "10:16 AM" },
+      {
+        id: 5,
+        sender: "Haley's Mom",
+        type: "image",
+        mediaUrl: "https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&w=800&q=80",
+        caption: "Here is a sneaky peak at the emerald cut solitaire! Shhh!",
+        time: "10:17 AM",
+        reactions: ["😮", "🔥"]
+      },
+      { id: 6, sender: "Laura (Sister)", text: "OMG Stephen it's gorgeous!! She is going to cry so much haha", time: "10:18 AM" },
+      { id: 7, sender: "Stephen (Groom)", text: "Here's what I'm thinking: Yarra Valley winery tour on Saturday the 24th. I told her we are going for Betsy's birthday.", time: "10:20 AM" },
+      { id: 8, sender: "Betsy (Best Friend)", text: "Yes! I already told her I wanted a 'chill winery day' for my bday so she suspects ZERO.", time: "10:21 AM", reactions: ["😂"] },
+      {
+        id: 9,
+        sender: "Stephen (Groom)",
+        type: "map",
+        locationName: "Hubert Estate - Yarra Valley",
+        coords: "37.7602° S, 145.4521° E",
+        caption: "I booked a private tasting pavilion at 2:00 PM near the vines.",
+        time: "10:25 AM"
+      },
+      {
+        id: 10,
+        sender: "Laura (Sister)",
+        type: "voice",
+        duration: "0:14",
+        caption: "Voice note: 'I'll bring my telephoto camera lens and hide in the vineyard rows around 1:45 PM!'",
+        time: "10:28 AM"
+      },
+      { id: 11, sender: "Marcus (Best Man)", text: "My job is to make sure Haley doesn't look in your coat pocket right? 😂", time: "10:30 AM" },
+      { id: 12, sender: "Stephen (Groom)", text: "Exactly. Keep her distracted while we walk up the hill path towards the vineyard lookout.", time: "10:31 AM" },
+      
+      // Fast forward to big day
+      { id: 13, isDateDivider: true, text: "SATURDAY, MAY 24 - PROPOSAL DAY 🥂" },
+      
+      { id: 14, sender: "Stephen (Groom)", text: "UPDATE: We are in the Uber! Heading to Yarra Valley now. Heart rate is currently 140 bpm 💓", time: "11:45 AM", reactions: ["🙏"] },
+      { id: 15, sender: "Laura (Sister)", text: "I'm already in position behind row 12 in the vineyard! Weather is literally perfect ☀️🍇", time: "1:30 PM" },
+      {
+        id: 16,
+        sender: "Laura (Sister)",
+        type: "image",
+        mediaUrl: "https://images.unsplash.com/photo-1506377247377-2a5b3b417ebb?auto=format&fit=crop&w=800&q=80",
+        caption: "View from my hideout spot! Beautiful sunshine.",
+        time: "1:35 PM",
+        reactions: ["😍"]
+      },
+      { id: 17, sender: "Betsy (Best Friend)", text: "We just finished tasting #2! Moving her towards the hill path NOW! Go go go!", time: "2:02 PM" },
+      { id: 18, sender: "Stephen (Groom)", text: "Wish me luck guys... here goes everything ❤️", time: "2:05 PM", reactions: ["❤️", "🤞"] },
+      
+      { id: 19, sender: "Laura (Sister)", text: "SHE SAID YESSSSSS!!!!!! 😭😭😭😭🎉🎉🎉🎉🎉", time: "2:14 PM", reactions: ["🥂", "🎉", "❤️", "🔥"] },
+      {
+        id: 20,
+        sender: "Laura (Sister)",
+        type: "image",
+        mediaUrl: "https://images.unsplash.com/photo-1515934751635-c81c6bc9a2d8?auto=format&fit=crop&w=800&q=80",
+        caption: "THE EXACT MOMENT!! Look at her reaction! ❤️✨",
+        time: "2:16 PM",
+        reactions: ["❤️", "😭"]
+      },
+      {
+        id: 21,
+        sender: "Stephen (Groom)",
+        type: "image",
+        mediaUrl: "https://images.unsplash.com/photo-1522673607200-164d1b6ce486?auto=format&fit=crop&w=800&q=80",
+        caption: "WE ARE ENGAGED!! Thank you team!! Best crew ever! 💍🍾",
+        time: "2:25 PM",
+        reactions: ["🥂", "❤️"]
+      },
+      { id: 22, sender: "Haley's Mom", text: "Crying tears of joy! Welcome officially to the family Stephen! ❤️", time: "2:28 PM" }
+    ];
+
+    // App State Variables
+    let currentDisplayedIndex = 0;
+    let isPlaying = false;
+    let autoPlayTimer = null;
+    let playSpeed = 1.0;
+    let soundEnabled = true;
+    let audioCtx = null;
+
+    function playPopSFX() {
+      if (!soundEnabled) return;
+      try {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(600, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.08);
+        
+        gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.08);
+        
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.08);
+      } catch (e) {
+        console.log('Audio init prevented');
+      }
+    }
+
+    window.onload = function() {
+      renderParticipantsList();
+      // Render initial set of messages
+      renderAllMessagesUntil(7);
+    };
+
+    function renderParticipantsList() {
+      const container = document.getElementById('participantList');
+      container.innerHTML = '';
+      Object.keys(participants).forEach(key => {
+        const p = participants[key];
+        const avatarHtml = p.avatar 
+          ? `<img src="${p.avatar}" class="w-8 h-8 rounded-full object-cover">`
+          : `<div class="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center text-xs font-bold text-slate-200">${p.name[0]}</div>`;
+          
+        container.innerHTML += `
+          <div class="flex items-center justify-between p-2 rounded-lg bg-[#111b21]">
+            <div class="flex items-center gap-2.5">
+              ${avatarHtml}
+              <div>
+                <p class="text-sm font-medium text-slate-200">${p.name} ${p.isMe ? '<span class="text-xs text-slate-500">(You)</span>' : ''}</p>
+                <p class="text-[10px] text-slate-400">${p.role}</p>
+              </div>
+            </div>
+            <i class="fa-solid fa-shield-halved text-xs text-emerald-500"></i>
+          </div>
+        `;
+      });
+    }
+
+    function createMessageMarkup(msg) {
+      if (msg.isDateDivider) {
+        return `
+          <div class="flex justify-center my-3 message-item">
+            <span class="bg-[#182229] border border-slate-800 text-slate-400 text-[11px] font-medium px-3 py-1 rounded-md shadow-sm uppercase tracking-wider">
+              ${msg.text}
+            </span>
+          </div>
+        `;
+      }
+
+      const pInfo = participants[msg.sender] || { name: msg.sender, color: "text-emerald-400", isMe: false };
+      const isMe = pInfo.isMe;
+
+      // Reactions badge generator
+      let reactionsHtml = '';
+      if (msg.reactions && msg.reactions.length > 0) {
+        reactionsHtml = `
+          <div class="absolute -bottom-2.5 ${isMe ? 'left-2' : 'right-2'} bg-[#222e35] border border-slate-700/60 rounded-full px-1.5 py-0.5 text-[11px] shadow-md flex items-center gap-0.5 z-10 cursor-pointer hover:scale-110 transition">
+            ${msg.reactions.join('')}
+          </div>
+        `;
+      }
+
+      // Content payload switcher
+      let contentHtml = '';
+      if (msg.type === 'image') {
+        contentHtml = `
+          <div class="rounded-lg overflow-hidden my-1 cursor-pointer group relative" onclick="openLightbox('${msg.mediaUrl}', '${msg.caption || ''}')">
+            <img src="${msg.mediaUrl}" class="w-full max-h-60 object-cover rounded-lg group-hover:scale-105 transition duration-300" loading="lazy">
+            <div class="absolute inset-0 bg-black/20 group-hover:bg-transparent transition"></div>
+          </div>
+          ${msg.caption ? `<p class="text-sm text-slate-200 mt-1">${msg.caption}</p>` : ''}
+        `;
+      } else if (msg.type === 'map') {
+        contentHtml = `
+          <div class="bg-[#111b21] rounded-lg p-2.5 border border-slate-700/50 space-y-1.5 my-1">
+            <div class="flex items-center gap-2 text-emerald-400 font-medium text-xs">
+              <i class="fa-solid fa-location-dot text-red-400 text-sm"></i>
+              <span>${msg.locationName}</span>
+            </div>
+            <p class="text-[11px] text-slate-400 font-mono">${msg.coords}</p>
+            <div class="h-24 bg-slate-800 rounded-md overflow-hidden relative border border-slate-700 flex items-center justify-center">
+              <img src="https://images.unsplash.com/photo-1524661135-423995f22d0b?auto=format&fit=crop&w=600&q=80" class="w-full h-full object-cover opacity-60">
+              <div class="absolute w-6 h-6 bg-red-500/30 rounded-full flex items-center justify-center animate-ping"></div>
+              <i class="fa-solid fa-location-dot text-red-500 text-xl absolute"></i>
+            </div>
+          </div>
+          ${msg.caption ? `<p class="text-sm text-slate-200 mt-1">${msg.caption}</p>` : ''}
+        `;
+      } else if (msg.type === 'voice') {
+        contentHtml = `
+          <div class="flex items-center gap-3 bg-[#111b21]/60 p-2 rounded-lg border border-slate-700/40 my-1">
+            <button onclick="playVoiceNote(this)" class="w-8 h-8 rounded-full bg-emerald-500 text-slate-950 flex items-center justify-center flex-shrink-0 hover:scale-105 transition">
+              <i class="fa-solid fa-play text-xs ml-0.5"></i>
+            </button>
+            <div class="flex-1 space-y-1">
+              <div class="flex items-center gap-1 h-4">
+                <div class="w-1 bg-emerald-400 h-2 rounded-full"></div>
+                <div class="w-1 bg-emerald-400 h-4 rounded-full"></div>
+                <div class="w-1 bg-emerald-400 h-3 rounded-full"></div>
+                <div class="w-1 bg-slate-600 h-2 rounded-full"></div>
+                <div class="w-1 bg-slate-600 h-3 rounded-full"></div>
+                <div class="w-1 bg-slate-600 h-4 rounded-full"></div>
+                <div class="w-1 bg-slate-600 h-1 rounded-full"></div>
+                <div class="w-1 bg-slate-600 h-3 rounded-full"></div>
+              </div>
+              <p class="text-[10px] text-slate-400 font-mono">${msg.duration}</p>
+            </div>
+          </div>
+          ${msg.caption ? `<p class="text-xs text-slate-300 italic mt-1">${msg.caption}</p>` : ''}
+        `;
+      } else {
+        contentHtml = `<p class="text-sm text-slate-100 leading-relaxed">${msg.text}</p>`;
+      }
+
+      const ticks = isMe ? `<span class="text-cyan-400 text-[10px] ml-1"><i class="fa-solid fa-check-double"></i></span>` : '';
+
+      return `
+        <div class="flex ${isMe ? 'justify-end' : 'justify-start'} message-item animate-pop my-1">
+          <div class="relative max-w-[82%] sm:max-w-[75%] px-3 py-2 rounded-xl shadow-sm ${isMe ? 'bubble-out' : 'bubble-in'}">
+            ${!isMe ? `<p class="text-[11px] font-semibold ${pInfo.color} mb-0.5">${pInfo.name}</p>` : ''}
+            ${contentHtml}
+            <div class="flex items-center justify-end gap-1 mt-1 text-[10px] text-slate-400">
+              <span>${msg.time}</span>
+              ${ticks}
+            </div>
+            ${reactionsHtml}
+          </div>
+        </div>
+      `;
+    }
+
+    function renderAllMessagesUntil(index) {
+      const list = document.getElementById('messagesList');
+      list.innerHTML = '';
+      for (let i = 0; i <= index && i < fullChatHistory.length; i++) {
+        list.innerHTML += createMessageMarkup(fullChatHistory[i]);
+      }
+      currentDisplayedIndex = index;
+      scrollToBottom();
+    }
+
+    function scrollToBottom() {
+      const container = document.getElementById('chatContainer');
+      container.scrollTo({ top: container.scrollHeight, behavior: 'smooth' });
+    }
+
+    function toggleAutoPlay() {
+      if (isPlaying) {
+        pauseAutoPlay();
+      } else {
+        startAutoPlay();
+      }
+    }
+
+    function startAutoPlay() {
+      if (currentDisplayedIndex >= fullChatHistory.length - 1) {
+        currentDisplayedIndex = 0;
+        document.getElementById('messagesList').innerHTML = '';
+      }
+      isPlaying = true;
+      document.getElementById('playIcon').className = 'fa-solid fa-pause text-xs';
+      document.getElementById('playStatus').innerText = 'Playing...';
+      playNextMessage();
+    }
+
+    function pauseAutoPlay() {
+      isPlaying = false;
+      clearTimeout(autoPlayTimer);
+      hideTyping();
+      document.getElementById('playIcon').className = 'fa-solid fa-play ml-0.5 text-xs';
+      document.getElementById('playStatus').innerText = 'Paused';
+    }
+
+    function playNextMessage() {
+      if (!isPlaying) return;
+
+      if (currentDisplayedIndex >= fullChatHistory.length - 1) {
+        pauseAutoPlay();
+        document.getElementById('playStatus').innerText = 'Completed 🎉';
+        return;
+      }
+
+      const nextMsg = fullChatHistory[currentDisplayedIndex + 1];
+
+      // Show typing indicator if message has sender
+      if (!nextMsg.isDateDivider && nextMsg.sender) {
+        showTyping(participants[nextMsg.sender]?.name || "Someone");
+      }
+
+      const delay = (nextMsg.text ? Math.max(1200, nextMsg.text.length * 40) : 1800) / playSpeed;
+
+      autoPlayTimer = setTimeout(() => {
+        hideTyping();
+        currentDisplayedIndex++;
+        const list = document.getElementById('messagesList');
+        list.innerHTML += createMessageMarkup(fullChatHistory[currentDisplayedIndex]);
+        playPopSFX();
+        scrollToBottom();
+
+        // Loop next message
+        autoPlayTimer = setTimeout(() => {
+          playNextMessage();
+        }, 800 / playSpeed);
+
+      }, delay);
+    }
+
+    function showTyping(name) {
+      const indicator = document.getElementById('typingIndicator');
+      const userSpan = document.getElementById('typingUser');
+      userSpan.innerText = name;
+      userSpan.classList.remove('hidden');
+      indicator.classList.remove('hidden');
+      scrollToBottom();
+    }
+
+    function hideTyping() {
+      document.getElementById('typingIndicator').classList.add('hidden');
+    }
+
+    function cycleSpeed() {
+      if (playSpeed === 1.0) playSpeed = 2.0;
+      else if (playSpeed === 2.0) playSpeed = 4.0;
+      else playSpeed = 1.0;
+
+      document.getElementById('speedBtn').innerText = playSpeed.toFixed(1) + 'x';
+    }
+
+    function resetChat() {
+      pauseAutoPlay();
+      renderAllMessagesUntil(3);
+      document.getElementById('playStatus').innerText = 'Ready';
+    }
+
+    function toggleSound() {
+      soundEnabled = !soundEnabled;
+      const btn = document.getElementById('soundBtn');
+      btn.className = soundEnabled ? 'p-2 hover:bg-[#2a3942] rounded-full transition text-emerald-400' : 'p-2 hover:bg-[#2a3942] rounded-full transition text-slate-500';
+    }
+
+    function toggleAspect() {
+      const frame = document.getElementById('appFrame');
+      frame.classList.toggle('max-w-2xl');
+      frame.classList.toggle('max-w-sm');
+    }
+
+    function openLightbox(url, caption) {
+      document.getElementById('lightboxImg').src = url;
+      document.getElementById('lightboxCaption').innerText = caption;
+      document.getElementById('lightbox').classList.remove('hidden');
+    }
+
+    function closeLightbox() {
+      document.getElementById('lightbox').classList.add('hidden');
+    }
+
+    function toggleInfoModal() {
+      document.getElementById('infoModal').classList.toggle('hidden');
+    }
+
+    function toggleSearch() {
+      const bar = document.getElementById('searchBar');
+      bar.classList.toggle('hidden');
+      if (!bar.classList.contains('hidden')) {
+        document.getElementById('searchInput').focus();
+      } else {
+        renderAllMessagesUntil(currentDisplayedIndex);
+      }
+    }
+
+    function filterMessages() {
+      const query = document.getElementById('searchInput').value.toLowerCase();
+      if (!query) {
+        renderAllMessagesUntil(currentDisplayedIndex);
+        return;
+      }
+      const filtered = fullChatHistory.filter(m => m.text && m.text.toLowerCase().includes(query));
+      const list = document.getElementById('messagesList');
+      list.innerHTML = '';
+      filtered.forEach(m => {
+        list.innerHTML += createMessageMarkup(m);
+      });
+    }
+
+    function sendManualMessage() {
+      const input = document.getElementById('manualMsgInput');
+      const val = input.value.trim();
+      if (!val) return;
+
+      const newMsg = {
+        id: Date.now(),
+        sender: "Stephen (Groom)",
+        text: val,
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      };
+
+      fullChatHistory.push(newMsg);
+      currentDisplayedIndex = fullChatHistory.length - 1;
+      const list = document.getElementById('messagesList');
+      list.innerHTML += createMessageMarkup(newMsg);
+      playPopSFX();
+      scrollToBottom();
+      input.value = '';
+    }
+
+    function openAddMessageModal() {
+      document.getElementById('addMsgModal').classList.remove('hidden');
+    }
+
+    function closeAddMessageModal() {
+      document.getElementById('addMsgModal').classList.add('hidden');
+    }
+
+    function submitCustomMessage() {
+      const sender = document.getElementById('modalSender').value;
+      const text = document.getElementById('modalText').value.trim();
+      if (!text) return;
+
+      const newMsg = {
+        id: Date.now(),
+        sender: sender,
+        text: text,
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      };
+
+      fullChatHistory.push(newMsg);
+      currentDisplayedIndex = fullChatHistory.length - 1;
+      const list = document.getElementById('messagesList');
+      list.innerHTML += createMessageMarkup(newMsg);
+      playPopSFX();
+      scrollToBottom();
+      closeAddMessageModal();
+      document.getElementById('modalText').value = '';
+    }
+
+    function openAddMediaModal() {
+      document.getElementById('addMediaModal').classList.remove('hidden');
+    }
+
+    function closeAddMediaModal() {
+      document.getElementById('addMediaModal').classList.add('hidden');
+    }
+
+    function submitCustomMedia() {
+      const sender = document.getElementById('mediaSender').value;
+      const url = document.getElementById('mediaUrl').value.trim() || "https://images.unsplash.com/photo-1515934751635-c81c6bc9a2d8?auto=format&fit=crop&w=800&q=80";
+      const caption = document.getElementById('mediaCaption').value.trim();
+
+      const newMsg = {
+        id: Date.now(),
+        sender: sender,
+        type: "image",
+        mediaUrl: url,
+        caption: caption,
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      };
+
+      fullChatHistory.push(newMsg);
+      currentDisplayedIndex = fullChatHistory.length - 1;
+      const list = document.getElementById('messagesList');
+      list.innerHTML += createMessageMarkup(newMsg);
+      playPopSFX();
+      scrollToBottom();
+      closeAddMediaModal();
+    }
+
+    function playVoiceNote(btn) {
+      playPopSFX();
+      btn.innerHTML = '<i class="fa-solid fa-pause text-xs"></i>';
+      setTimeout(() => {
+        btn.innerHTML = '<i class="fa-solid fa-play text-xs ml-0.5"></i>';
+      }, 3000);
+    }
+  </script>
+</body>
+</html>
