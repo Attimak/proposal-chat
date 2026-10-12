@@ -2910,79 +2910,80 @@
       </div>
       
 <script>
-  let isPlaying = false;
-  let playInterval = null;
+  (function() {
+    let isPlaying = false;
+    let playInterval = null;
 
-  function togglePlay() {
-    const playBtn = document.getElementById('playBtn');
-    const container = document.getElementById('chatContainer');
-    
-    isPlaying = !isPlaying;
-
-    if (isPlaying) {
-      playBtn.textContent = '⏸ Pause Auto-Play';
-      playBtn.classList.add('active');
-
-      const speed = parseInt(document.getElementById('speedSelect').value, 10);
-
-      playInterval = setInterval(() => {
-        // Scroll down by 3 pixels every tick smoothly
-        if (container.scrollTop + container.clientHeight >= container.scrollHeight) {
-          togglePlay(); // Stop at the bottom
-        } else {
-          container.scrollTop += 3;
-        }
-      }, speed);
-
-    } else {
-      playBtn.textContent = '▶ Auto-Play Chat';
-      playBtn.classList.remove('active');
-      clearInterval(playInterval);
-    }
-  }
-
-  function changeSpeed() {
-    if (isPlaying) {
-      clearInterval(playInterval);
-      const speed = parseInt(document.getElementById('speedSelect').value, 10);
+    window.togglePlay = function() {
+      const playBtn = document.getElementById('playBtn');
       const container = document.getElementById('chatContainer');
+      
+      isPlaying = !isPlaying;
 
-      playInterval = setInterval(() => {
-        if (container.scrollTop + container.clientHeight >= container.scrollHeight) {
-          togglePlay();
-        } else {
-          container.scrollTop += 3;
-        }
-      }, speed);
-    }
-  }
+      if (isPlaying) {
+        playBtn.textContent = '⏸ Pause Auto-Play';
+        playBtn.classList.add('active');
 
-  function jumpToEnd() {
-    if (isPlaying) togglePlay();
-    const container = document.getElementById('chatContainer');
-    container.scrollTo({ top: container.scrollHeight, behavior: 'smooth' });
-  }
+        const speed = parseInt(document.getElementById('speedSelect').value, 10);
 
-  function resetView() {
-    if (isPlaying) togglePlay();
-    const container = document.getElementById('chatContainer');
-    container.scrollTo({ top: 0, behavior: 'smooth' });
-    document.getElementById('searchInput').value = '';
-    filterMessages();
-  }
+        playInterval = setInterval(() => {
+          if (container.scrollTop + container.clientHeight >= container.scrollHeight) {
+            window.togglePlay();
+          } else {
+            container.scrollTop += 3;
+          }
+        }, speed);
 
-  function filterMessages() {
-    const query = document.getElementById('searchInput').value.toLowerCase();
-    const container = document.getElementById('chatContainer');
-    const messages = container.querySelectorAll('.message');
-
-    messages.forEach(msg => {
-      const text = msg.textContent.toLowerCase();
-      if (text.includes(query)) {
-        msg.style.display = '';
       } else {
-        msg.style.display = 'none';
+        playBtn.textContent = '▶ Auto-Play Chat';
+        playBtn.classList.remove('active');
+        clearInterval(playInterval);
       }
-    });
-  }
+    };
+
+    window.changeSpeed = function() {
+      if (isPlaying) {
+        clearInterval(playInterval);
+        const speed = parseInt(document.getElementById('speedSelect').value, 10);
+        const container = document.getElementById('chatContainer');
+
+        playInterval = setInterval(() => {
+          if (container.scrollTop + container.clientHeight >= container.scrollHeight) {
+            window.togglePlay();
+          } else {
+            container.scrollTop += 3;
+          }
+        }, speed);
+      }
+    };
+
+    window.jumpToEnd = function() {
+      if (isPlaying) window.togglePlay();
+      const container = document.getElementById('chatContainer');
+      container.scrollTo({ top: container.scrollHeight, behavior: 'smooth' });
+    };
+
+    window.resetView = function() {
+      if (isPlaying) window.togglePlay();
+      const container = document.getElementById('chatContainer');
+      container.scrollTo({ top: 0, behavior: 'smooth' });
+      document.getElementById('searchInput').value = '';
+      window.filterMessages();
+    };
+
+    window.filterMessages = function() {
+      const query = document.getElementById('searchInput').value.toLowerCase();
+      const container = document.getElementById('chatContainer');
+      const messages = container.querySelectorAll('.message');
+
+      messages.forEach(msg => {
+        const text = msg.textContent.toLowerCase();
+        if (text.includes(query)) {
+          msg.style.display = '';
+        } else {
+          msg.style.display = 'none';
+        }
+      });
+    };
+  })();
 </script>
